@@ -1028,6 +1028,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 126365378}
   m_CullTransparentMesh: 1
+--- !u!1 &129052180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 129052181}
+  m_Layer: 0
+  m_Name: StateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &129052181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129052180}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0034930701, y: -0.69483083, z: -0.71915686, w: 0.0033749933}
+  m_LocalPosition: {x: -168.02032, y: 0, z: -99.5032}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 217683856}
+  m_LocalEulerAnglesHint: {x: -91.971, y: -179.444, z: 0}
 --- !u!1 &129670040
 GameObject:
   m_ObjectHideFlags: 0
@@ -1071,7 +1102,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 96.25, y: -80}
+  m_AnchoredPosition: {x: 96.25, y: -10}
   m_SizeDelta: {x: 192.5, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &129670042
@@ -1329,6 +1360,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1416174297}
     m_Modifications:
+    - target: {fileID: 1195138626504501105, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: Topic
+      value: /awsim/ground_truth/localization/kinematic_state1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4111580400772714868, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: poseTopic
+      value: /sensing/gnss/pose
+      objectReference: {fileID: 0}
+    - target: {fileID: 4111580400772714868, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: poseWithCovarianceStampedTopic
+      value: /sensing/gnss/pose_with_covariance
+      objectReference: {fileID: 0}
     - target: {fileID: 4981081891045692864, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: m_Name
       value: Lexus RX450h 2015 Sample Sensor
@@ -1372,6 +1415,70 @@ PrefabInstance:
     - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.376
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _frameId
+      value: base_link1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _gearReportTopic
+      value: /vehicle/status/gear_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _steeringReportTopic
+      value: /vehicle/status/steering_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _velocityReportTopic
+      value: /vehicle/status/velocity_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _ActuationStatusTopic
+      value: /vehicle/status/actuation_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _controlModeReportTopic
+      value: /vehicle/status/control_mode1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _hazardLightsReportTopic
+      value: /vehicle/status/hazard_lights_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: _turnIndicatorsReportTopic
+      value: /vehicle/status/turn_indicators_status1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: positionTopic
+      value: /initialpose
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: controlModeTopic
+      value: /vehicle/status/control_mode
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: gearCommandTopic
+      value: /control/command/gear_cmd
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: controlCommandTopic
+      value: /control/command/control_cmd
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: actuationCommandTopic
+      value: /control/command/actuation_cmd
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: hazardLightsCommandTopic
+      value: /control/command/hazard_lights_cmd
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: turnIndicatorsCommandTopic
+      value: /control/command/turn_indicators_cmd
+      objectReference: {fileID: 0}
+    - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
+      propertyPath: vehicleEmergencyStampedTopic
+      value: /control/command/emergency_cmd
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1753,7 +1860,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1743169424}
   m_HandleRect: {fileID: 1743169422}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3560,17 +3667,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631930839}
   m_CullTransparentMesh: 1
---- !u!114 &634728732 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 381693650644719371, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-  m_PrefabInstance: {fileID: 1268891652}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 830ab73cebda3db4580ebd3ece935931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &649842983 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 39285201170986152, guid: 44304e574e2ab2573a78d5304b5ee5f5, type: 3}
@@ -6189,7 +6285,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 96.25, y: -230}
+  m_AnchoredPosition: {x: 96.25, y: -20}
   m_SizeDelta: {x: 192.5, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1194537306
@@ -6638,57 +6734,13 @@ PrefabInstance:
       value: TUECampus_4RandomTraffic
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: showSpawnPoints
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: showYieldingPhase
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].maximumSpawns
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].npcPrefabs.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].npcPrefabs.Array.data[0]
-      value: 
-      objectReference: {fileID: 919132149155446097, guid: c64739bd092dfd24894c4ab53499046b, type: 3}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].npcPrefabs.Array.data[1]
-      value: 
-      objectReference: {fileID: 6604874415271597525, guid: 7e772e9ad7eb79040be629d8d04542ab, type: 3}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: routeTrafficSims.Array.data[0].npcPrefabs.Array.data[2]
-      value: 
-      objectReference: {fileID: 714549001370495616, guid: d0094c5a0e9fb6148873c658dbc61a89, type: 3}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       propertyPath: randomTrafficSims.Array.data[0].spawnableLanes.Array.size
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: randomTrafficSims.Array.data[0].spawnableLanes.Array.data[0]
-      value: 
-      objectReference: {fileID: 634728732}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: randomTrafficSims.Array.data[0].spawnableLanes.Array.data[1]
-      value: 
-      objectReference: {fileID: 2115695259}
-    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-      propertyPath: randomTrafficSims.Array.data[0].spawnableLanes.Array.data[2]
-      value: 
-      objectReference: {fileID: 1756629025}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 6294274090764054562, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
@@ -6700,6 +6752,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2694826222367566197, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       insertIndex: 4
       addedObject: {fileID: 1479134245}
+    - targetCorrespondingSourceObject: {fileID: 2694826222367566197, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1592164380}
+    - targetCorrespondingSourceObject: {fileID: 2694826222367566197, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 129052181}
     - targetCorrespondingSourceObject: {fileID: 5227265824731292278, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 431875142}
@@ -7579,7 +7637,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 96.25, y: -345}
+  m_AnchoredPosition: {x: 96.25, y: -30}
   m_SizeDelta: {x: 192.5, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1427845714
@@ -8313,6 +8371,50 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2805515590536281816, guid: 44304e574e2ab2573a78d5304b5ee5f5, type: 3}
+--- !u!1 &1592164379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1592164380}
+  - component: {fileID: 1592164381}
+  m_Layer: 0
+  m_Name: StateManager1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1592164380
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592164379}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.052804254, y: 0.66371065, z: 0.7439094, w: 0.057435296}
+  m_LocalPosition: {x: -0, y: 0, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 217683856}
+  m_LocalEulerAnglesHint: {x: -83.487, y: -1.173, z: 172.217}
+--- !u!114 &1592164381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592164379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38bcf37115c51a8d09c1ab65593ad7fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1705095250 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 811cc4f847b4ceb1fa3805859601f9e1, type: 3}
@@ -8522,17 +8624,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1756629025 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 916554508061433265, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-  m_PrefabInstance: {fileID: 1268891652}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 830ab73cebda3db4580ebd3ece935931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1757667090
 GameObject:
   m_ObjectHideFlags: 0
@@ -11986,17 +12077,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2109140313}
   m_CullTransparentMesh: 1
---- !u!114 &2115695259 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5629242543510168245, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
-  m_PrefabInstance: {fileID: 1268891652}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 830ab73cebda3db4580ebd3ece935931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!222 &376971779640416760
 CanvasRenderer:
   m_ObjectHideFlags: 0
