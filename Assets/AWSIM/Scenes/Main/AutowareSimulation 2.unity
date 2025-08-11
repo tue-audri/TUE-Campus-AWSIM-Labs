@@ -6638,8 +6638,12 @@ PrefabInstance:
       value: TUECampus_4RandomTraffic
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
+      propertyPath: seed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       propertyPath: showSpawnPoints
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       propertyPath: showYieldingPhase
@@ -6647,10 +6651,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       propertyPath: routeTrafficSims.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
       propertyPath: routeTrafficSims.Array.data[0].enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}
+      propertyPath: randomTrafficSims.Array.data[0].enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6439110675174932482, guid: fa3c42e8812e1d0ac88b41e11b0afc2e, type: 3}

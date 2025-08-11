@@ -9,11 +9,14 @@ using Newtonsoft.Json.Linq;
 
 public class AgentStateRecieverWebSocket : MonoBehaviour
 {
-    //public GameObject agentPrefab; // Assign your agent prefab in the Inspector
 
+
+    [SerializeField] public GameObject vehiclePrefab; // Assign vehicle prefab in Inspector
+    [SerializeField] private Transform mapOrigin;
+    [SerializeField] private Transform mapOriginMod;
     private WebSocket websocket;
-    private WebSocket websocket2;
     private Dictionary<string, GameObject> agents = new Dictionary<string, GameObject>();
+    private Dictionary<string, GameObject> trackedObjects = new Dictionary<string, GameObject>();
 
 
     async void Start()
@@ -53,7 +56,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
             JObject json = JObject.Parse(message);
 
-           
+
             Debug.Log("Received: " + message);
             DittoMessage msg = JsonConvert.DeserializeObject<DittoMessage>(message);
             string[] parts = msg.topic.Split('/');
@@ -127,7 +130,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             
             // deleted event   
             string[] parts = topic.Split('/');
-            string name = parts[1];
+            string name = parts[0] + ":" + parts[1];
             Debug.Log("topicDeleted: " + topic.EndsWith("/deleted"));
             // despawn appropriate prefab
             Debug.Log("callling DespawnAgent with ID: " + name);
@@ -166,7 +169,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         foreach (JObject obj in objectsArray)
         {
             // Identify class of tracked object
-            spawnTrackedObject(parent, obj);
+            SpawnTrackedObject(parent, obj);
             // Spawn object if not already spawned
             // update pose
         }
@@ -202,17 +205,20 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         //Pose pose = JsonUtility.FromJson<Pose>(thing.features);
         Features features = JsonConvert.DeserializeObject<Features>(thing.features["status"].ToString());
         Pose pos = features.properties.kinematics.pose;
-        Vector3 position = new Vector3(pos.position.x, pos.position.y, pos.position.z);
-        Quaternion rotation = new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w);
+        Vector3 rosPos = new Vector3(pos.position.x, pos.position.y, pos.position.z);
+        Vector3 worldPosition = mapOrigin.TransformPoint(ConvertRos2UnityPosition(rosPos));
+        Quaternion rotation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
+        // Quaternion rotation = new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w);
         // spawn the agent prefab
-        //GameObject agent = Instantiate(agentPrefab, pointssition, rotation);
+        // GameObject agent = Instantiate(vehiclePrefab, position, rotation);
         GameObject agent = new GameObject();
-        agent.transform.SetParent(GameObject.Find("StateManager1")?.transform);
-        agent.transform.position = position;
+        agent.transform.SetParent(this.transform);
+        agent.transform.position = worldPosition;
         agent.transform.rotation = rotation;
         // set the agent id
         agent.name = thing.thingID;
-        Debug.Log("AgentCreated with ID: " + thing.thingID + " at position: " + position + " with rotation: " + rotation);
+        agents.Add(thing.thingID, agent);
+        Debug.Log("AgentCreated with ID: " + thing.thingID + " at position: " + worldPosition + " with rotation: " + rotation);
         // set the agent position and orientation
         //agent.transform.position = new Vector3(thing.features.properties.kinematics.pose.position.x, thing.features.properties.kinematics.pose.position.y, thing.features.properties.kinematics.pose.position.z);
     }
@@ -223,50 +229,45 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         string thing_id = parts[0] + ":" + parts[1];
         string targetPath = msg.path;
 
-        GameObject targetObject = GameObject.Find(thing_id);
-
-        // If the modified event is for kinematics
-        if (targetPath.EndsWith("kinematics"))
+        if (agents.TryGetValue(thing_id, out GameObject targetObject))
         {
-            Pose pos = JsonConvert.DeserializeObject<Pose>(msg.value["pose"].ToString());
-            Debug.Log("Recieved Agent Pose: " + JsonUtility.ToJson(pos,true));
-            // Vector3 position = new Vector3(-pos.position.y, -pos.position.z, pos.position.x);
-            // Quaternion rotation = new Quaternion(pos.orientation.y, -pos.orientation.z, -pos.orientation.x, pos.orientation.w);
-            Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
-            Quaternion rotation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
-        
-            targetObject.transform.localRotation = rotation;
-            targetObject.transform.localPosition = position;
-            // Debug.Log("AgentUpdated KINEMATICS with ID: " + thing_id);
+            if (targetPath.EndsWith("kinematics"))
+            {
+                Pose pos = JsonConvert.DeserializeObject<Pose>(msg.value["pose"].ToString());
+                Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
+                Vector3 worldPosition = mapOrigin.TransformPoint(position);
+                Quaternion rotation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
+
+                targetObject.transform.position = worldPosition;
+                targetObject.transform.rotation = rotation;
+
+                
+            }
         }
-        
-        // You can update more properties here (rotation, state, etc.)
     }
 
     void DespawnAgent(string id)
     {
-        Debug.Log("DespawnAgent called with ID: " + id);
-        // destroy the agent game object
-         bool found = false;
-        // Find all root GameObjects in the scene
-        foreach (GameObject obj in UnityEngine.Object.FindObjectsOfType<GameObject>())
+        if (agents.TryGetValue(id, out GameObject agent))
         {
-            if (obj.name.Contains(id))
-            {
-                Destroy(obj);
-                Debug.Log("Destroyed GameObject: " + obj.name);
-                found = true;
-            }
+            Destroy(agent);
+            agents.Remove(id);
+            Debug.Log($"Destroyed Agent : {id}");
         }
-        if (!found)
+        else
         {
-            Debug.Log("No GameObject found with name: " + id);
+            Debug.LogWarning($"No agent found with ID : {id}");
         }
         
     }
 
-
-    string getObjectClass(JObject payload)
+    private readonly Dictionary<string, string> classMap = new Dictionary<string, string>
+    {
+        { "0", "unknown" }, { "1", "car" }, { "2", "truck" },
+        { "3", "bus" }, { "4", "trailer" }, { "5", "motorcycle" },
+        { "6", "bicycle" }, { "7", "pedestrian" }
+    };
+    string getObjectClass1(JObject payload)
     {
         string classID = payload["classification"][0]["label"].ToString();
         // Debug.Log("ClassID" + classID);
@@ -305,9 +306,60 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         return objClass;
     }
 
+    string GetObjectClass(JObject payload)
+    {
+        string classID = payload["classification"]?[0]?["label"]?.ToString() ?? "0";
+        return classMap.TryGetValue(classID, out string objClass) ? objClass : "unknown";
+    }
+
+    void SpawnTrackedObject(string parentName, JObject obj)
+    {
+        string objClass = GetObjectClass(obj);
+        string objName = $"{objClass}_{obj["object_id"]}";
+        string objKey = $"{parentName}/{objName}";
+
+        // Check if existing
+
+        if (!agents.TryGetValue(parentName, out GameObject parent))
+        {
+            Debug.LogWarning($"Parent {parentName} not found for tracked object {objName}.");
+            return;
+        }
+
+        if (trackedObjects.TryGetValue(objKey, out GameObject existingObject))
+        {
+            Debug.Log($"Tracked Object {objName} already exists under {parentName}");
+            return;
+        }
+
+        // Spawning new Object
+        Pose pos = GetPoseFromMsg(obj);
+        if (pos == null || pos.position == null || pos.orientation == null)
+        {
+            Debug.LogWarning($"Invalid pose for tracked object {objName}. Skipping spawn.");
+            return;
+        }
+
+        Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
+        // Vector3 worldPosition = existingObject.TransformPoint(position);
+        Quaternion orientation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
+
+        GameObject trackedObject = new GameObject();
+        trackedObject.AddComponent<GizmoData>().color = Color.yellow;
+        // var gizmo = trackedObject.AddComponent<DebugGizmo>();
+        trackedObject.transform.SetParent(parent.transform);
+        trackedObject.transform.localPosition = position;
+        trackedObject.transform.localRotation = orientation;
+        trackedObject.name = objName;
+        trackedObjects.Add(objKey, trackedObject);
+
+        Debug.Log($"Tracked object {objName} spawned under {parentName} at {position} with rotation {orientation.eulerAngles}, class: {objClass}");
+
+    }
+
     void spawnTrackedObject(string parentName, JObject obj)
     {
-        string obj_class = getObjectClass(obj);
+        string obj_class = GetObjectClass(obj);
         string obj_name = obj_class + "_" + obj["object_id"];
         GameObject parent = GameObject.Find(parentName);
         Transform existingChild = parent.transform.Find(obj_name);
@@ -323,7 +375,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             trackedObject.name = obj_name;
 
             // Pose pos = JsonConvert.DeserializeObject<Pose>(obj["kinematics"]["pose_with_covariance"].ToString());
-            Pose pos = getPoseFromMsg(obj);
+            Pose pos = GetPoseFromMsg(obj);
             Debug.Log("obj[kinamatics][pose_with_covariance]: " + obj["kinematics"]["pose_with_covariance"]);
             Debug.Log("Object pos values: " + JsonUtility.ToJson(pos,true));
             Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
@@ -342,7 +394,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         Debug.Log("TrackedObject name: " + obj_name + "spawned under " + parentName);
     }
 
-    Pose getPoseFromMsg(JObject obj)
+    Pose GetPoseFromMsg(JObject obj)
     {
         Pose pos = new Pose();
         pos.position = new Position();
@@ -370,39 +422,93 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         Vector3 RosToUnityPosition = new Vector3(1f, -1f, 1f);
         return Vector3.Scale(rosPos, RosToUnityPosition);
     }
-
     Quaternion ConvertRos2UnityRotation(Quaternion rosQuat)
+    {
+        Quaternion frameAlignment = Quaternion.Euler(90f, 0f, 90f);
+        Quaternion alignedQuat = frameAlignment * rosQuat;
+
+        Vector3 euler = alignedQuat.eulerAngles;
+        euler.x = -euler.x;
+        euler.z = -euler.z;
+        
+        return Quaternion.Euler(euler);
+    }
+
+    Quaternion ConvertRos2UnityRotation1(Quaternion rosQuat)
     {
          Quaternion RosToUnityRotation = Quaternion.Euler(0f, 180f, 0f);
         return RosToUnityRotation * rosQuat;
     }
 
-
-
-
-JToken DecodeBase64ToJToken(JToken token)
-{
-    if (token.Type == JTokenType.String)
+    Vector3 ConvertRos2UnityPosition1(Vector3 rosPos)
     {
-        string base64 = token.ToString();
-
-        try
-        {
-            byte[] utf8Bytes = Convert.FromBase64String(base64);
-            string jsonString = Encoding.UTF8.GetString(utf8Bytes);
-
-            // Parse the decoded string into a JToken
-            return JToken.Parse(jsonString);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Decoding failed: " + ex.Message);
-        }
+        // Changed from: new Vector3(rosPos.x, -rosPos.y, rosPos.z) (for mapOrigin rotation -90° X, -180° Y)
+        // New: Map ROS (X-forward, Y-left, Z-up) to Unity (Z-forward, X-right, Y-up) -> (z, -y, x)
+        return new Vector3(-rosPos.x, rosPos.z, -rosPos.y);
     }
 
-    // Return original token if not a string or decoding fails
-    return token;
-}
+    
+
+
+
+
+    JToken DecodeBase64ToJToken(JToken token)
+    {
+        if (token.Type == JTokenType.String)
+        {
+            string base64 = token.ToString();
+
+            try
+            {
+                byte[] utf8Bytes = Convert.FromBase64String(base64);
+                string jsonString = Encoding.UTF8.GetString(utf8Bytes);
+
+                // Parse the decoded string into a JToken
+                return JToken.Parse(jsonString);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Decoding failed: " + ex.Message);
+            }
+        }
+
+        // Return original token if not a string or decoding fails
+        return token;
+    }
+
+    // New: Component to store gizmo color
+    public class GizmoData : MonoBehaviour
+    {
+        public Color color = Color.yellow;
+    }
+    private void OnDrawGizmos()
+    {
+        // New: Add debug log to confirm method is called
+        Debug.Log($"OnDrawGizmos called, trackedObjects count: {trackedObjects?.Count ?? 0}");
+        if (trackedObjects == null || trackedObjects.Count == 0)
+        {
+            Debug.LogWarning("No tracked objects to draw gizmos for.");
+            return;
+        }
+
+        foreach (var pair in trackedObjects)
+        {
+            GameObject obj = pair.Value;
+            GizmoData gizmo = obj.GetComponent<GizmoData>();
+            if (gizmo != null)
+            {
+                Gizmos.color = gizmo.color;
+                Gizmos.DrawSphere(obj.transform.position, 0.5f);
+                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 0.7f);
+            }
+        }
+        // Existing: Draw mapOrigin gizmo
+        if (mapOrigin != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(mapOrigin.position, 0.7f);
+        }
+    }
 
     // Data classes for JSON parsing
     [Serializable]
@@ -414,12 +520,6 @@ JToken DecodeBase64ToJToken(JToken token)
         public int status;
     }
     [Serializable]
-    // public class AgentEvent
-    // {
-    //     public string @event; // "spawn", "update", "despawn"
-    //     public SimpleCarWrapper car;
-    // }
-    // [Serializable]
     public class ThingWrapper
     {
         public string thingID;
@@ -427,11 +527,6 @@ JToken DecodeBase64ToJToken(JToken token)
         public JToken attributes;
         public JToken features;
     }
-    // [Serializable]
-    // public class SimpleCarWrapper
-    // {
-    //     public Features features;
-    // }
 
     [Serializable]
     public class Features
