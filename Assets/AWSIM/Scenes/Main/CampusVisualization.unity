@@ -778,13 +778,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 82014337}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0.7071068, w: 0}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 217683856}
-  m_LocalEulerAnglesHint: {x: -90, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &98240729
 GameObject:
   m_ObjectHideFlags: 0
@@ -6888,7 +6888,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38bcf37115c51a8d09c1ab65593ad7fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vehiclePrefab: {fileID: 0}
+  unknownPrefab: {fileID: 919132149155446097, guid: 66d79fa4756bfdb4fa764601627ab286, type: 3}
+  vehiclePrefab: {fileID: 919132149155446097, guid: 3d0f67ccafcb95c47b4f76c5c28a206f, type: 3}
+  trackedCar: {fileID: 6604874415271597525, guid: 7e772e9ad7eb79040be629d8d04542ab, type: 3}
+  trackedTruck: {fileID: 919132149155446097, guid: 8e58f63ae651bc343825fd41d2c7af82, type: 3}
+  trackedPedestrian: {fileID: 919132149155446097, guid: 66d79fa4756bfdb4fa764601627ab286, type: 3}
   mapOrigin: {fileID: 82014338}
   mapOriginMod: {fileID: 129052181}
 --- !u!1 &1317468419

@@ -11,13 +11,38 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 {
 
 
-    [SerializeField] public GameObject vehiclePrefab; // Assign vehicle prefab in Inspector
+    [SerializeField] private GameObject unknownPrefab; // Default prefab for unknown class
+    [SerializeField] public GameObject vehiclePrefab; // Assign agent vehicle prefab in Inspector
+    [SerializeField] public GameObject trackedCar; // Assign tracked car prefab in Inspector
+    [SerializeField] public GameObject trackedTruck; // Assign tracked truck prefab in Inspector
+    [SerializeField] public GameObject trackedPedestrian; // Assign tracked pedesrian prefab in Inspector
     [SerializeField] private Transform mapOrigin;
     [SerializeField] private Transform mapOriginMod;
     private WebSocket websocket;
     private Dictionary<string, GameObject> agents = new Dictionary<string, GameObject>();
     private Dictionary<string, GameObject> trackedObjects = new Dictionary<string, GameObject>();
 
+    private readonly Dictionary<string, string> classMap = new Dictionary<string, string>
+    {
+        { "0", "unknown" }, { "1", "car" }, { "2", "truck" },
+        { "3", "bus" }, { "4", "trailer" }, { "5", "motorcycle" },
+        { "6", "bicycle" }, { "7", "pedestrian" }
+    };
+    private Dictionary<string, GameObject> prefabMap = new Dictionary<string, GameObject>();
+
+    void Awake()
+    {
+        prefabMap["car"] = trackedCar;
+        prefabMap["truck"] = trackedTruck;
+
+        foreach (var pair in prefabMap)
+        {
+            if (pair.Value == null)
+            {
+                Debug.LogWarning($"Prefab for class {pair.Key} is not assigned in Inspector.");
+            }
+        }
+    }
 
     async void Start()
     {
@@ -144,61 +169,6 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         
     }
 
-    void HandleAgentMessage(DittoMessage msg)
-    {
-        Debug.Log("HELLO FROM MESSAGE HANDLER");
-        string topic = msg.topic;
-        string[] topic_parts = topic.Split('/');
-        msg.value = DecodeBase64ToJToken(msg.value);
-        Debug.Log("Message Value: " + msg.value.ToString());
-
-        // It is presently assumed that only tracked object messages use the live message channel
-        // The existance probablity or the classification confidence are currently not used for anything.
-        // deserialize the ros message
-        // TrackedObject obj = Json.DeserializeObject<TrackedObject>(msg.value);
-        // Identify parent object
-        string parent = topic_parts[0] + ":" + topic_parts[1];
-        // Extract object array
-        JArray objectsArray = msg.value["objects"] as JArray;
-        if (objectsArray == null)
-        {
-            Debug.LogWarning("No 'objects' array found in value.");
-            return;
-        }
-
-        foreach (JObject obj in objectsArray)
-        {
-            // Identify class of tracked object
-            SpawnTrackedObject(parent, obj);
-            // Spawn object if not already spawned
-            // update pose
-        }
-
-        
-        
-
-        // Debug.Log("Received message: " + topic);
-
-    }
-
-    private void SubscribeToEvents()
-    {
-        Debug.Log("Subscribing to events");
-        websocket.SendText("START-SEND-EVENTS");
-    }
-
-    private void SubscribeToMessages()
-    {
-        Debug.Log("Subscribing to messages");
-        websocket.SendText("START-SEND-MESSAGES");
-    }
-
-    private void SubscribeToAnnouncements()
-    {
-        Debug.Log("Subscribing to announcements");
-        websocket.SendText("START-SEND-ANNOUNCEMENTS");
-    }
-
     void SpawnAgent(ThingWrapper thing)
     {
         // retrieve the pose of the agent
@@ -211,10 +181,12 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         // Quaternion rotation = new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w);
         // spawn the agent prefab
         // GameObject agent = Instantiate(vehiclePrefab, position, rotation);
-        GameObject agent = new GameObject();
-        agent.transform.SetParent(this.transform);
-        agent.transform.position = worldPosition;
-        agent.transform.rotation = rotation;
+        // GameObject agent = new GameObject();
+        GameObject agent = Instantiate(vehiclePrefab, worldPosition, rotation, this.transform);
+        // agent.AddComponent<GizmoData>().color = Color.blue;
+        // agent.transform.SetParent(this.transform);
+        // agent.transform.position = worldPosition;
+        // agent.transform.rotation = rotation;
         // set the agent id
         agent.name = thing.thingID;
         agents.Add(thing.thingID, agent);
@@ -261,12 +233,170 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         
     }
 
-    private readonly Dictionary<string, string> classMap = new Dictionary<string, string>
+    void HandleAgentMessage(DittoMessage msg)
     {
-        { "0", "unknown" }, { "1", "car" }, { "2", "truck" },
-        { "3", "bus" }, { "4", "trailer" }, { "5", "motorcycle" },
-        { "6", "bicycle" }, { "7", "pedestrian" }
-    };
+        Debug.Log("HELLO FROM MESSAGE HANDLER");
+        // It is presently assumed that only tracked object messages use the live message channel
+        // The existance probablity or the classification confidence are currently not used for anything.
+        string topic = msg.topic;
+        string[] topic_parts = topic.Split('/');
+        msg.value = DecodeBase64ToJToken(msg.value);
+        Debug.Log("Message Value: " + msg.value.ToString());
+
+        // Identify parent object
+        string parentName = topic_parts[0] + ":" + topic_parts[1];
+        // Extract object array
+        JArray objectsArray = msg.value["objects"] as JArray;
+        if (objectsArray == null)
+        {
+            Debug.LogWarning("No 'objects' array found in value.");
+            return;
+        }
+        
+
+        foreach (JObject obj in objectsArray)
+        {
+            string objID = new Guid(obj["object_id"].ToObject<byte[]>()).ToString();
+            GameObject parent = null;
+
+            if (!agents.TryGetValue(parentName, out parent))
+            {
+                Debug.LogWarning($"Parent {parentName} not found for tracked object {objID}.");
+                // Despawn child object if parent no longer exists?? Is it possible?
+                return;
+            }
+
+            if (trackedObjects.TryGetValue(objID, out GameObject existingObject))
+            {
+                Debug.Log($"Tracked Object {objID} already exists under {parentName}");
+                UpdateTrackedObject(parent, existingObject, obj);
+                return;
+            }
+            else
+            {
+                SpawnTrackedObject(parent, obj);
+            }
+
+        }       
+        
+
+        // Debug.Log("Received message: " + topic);
+
+    }
+
+    void SpawnTrackedObject(GameObject parent, JObject obj)
+    {
+        string parentName = parent.name;
+        string objClass = GetObjectClass(obj);
+        // string objID = $"{obj["object_id"]}";
+        string objID = new Guid(obj["object_id"].ToObject<byte[]>()).ToString();
+        string objName = $"{objClass}_{objID}";
+        string objKey = $"{parentName}/{objName}";
+
+        // Check if existing
+
+        // if (!agents.TryGetValue(parentName, out GameObject parent))
+        // {
+        //     Debug.LogWarning($"Parent {parentName} not found for tracked object {objName}.");
+        //     return;
+        // }
+
+        // if (trackedObjects.TryGetValue(objKey, out GameObject existingObject))
+        // {
+        //     Debug.Log($"Tracked Object {objName} already exists under {parentName}");
+        //     return;
+        // }
+
+        // Spawning new Object
+        Pose pos = GetPoseFromMsg(obj);
+        if (pos == null || pos.position == null || pos.orientation == null)
+        {
+            Debug.LogWarning($"Invalid pose for tracked object {objName}. Skipping spawn.");
+            return;
+        }
+        
+        Transform parentTransform = parent.transform;
+        Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
+        Quaternion orientation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
+
+        Vector3 worldPosition = mapOrigin.TransformPoint(position);
+        Quaternion worldRotation = orientation; // Placeholder. Also convert for worldRotation
+
+        // GameObject trackedObject = new GameObject();
+        GameObject prefab = prefabMap.TryGetValue(objClass, out GameObject mappedPrefab) ? mappedPrefab : unknownPrefab;
+        if (prefab == null)
+        {
+            Debug.LogWarning($"No prefab for class {objClass}. Using empty GameObject.");
+            prefab = new GameObject();
+        }
+
+        GameObject trackedObject = Instantiate(prefab, worldPosition, worldRotation, this.transform);
+        // trackedObject.AddComponent<GizmoData>().color = Color.yellow;
+        // var gizmo = trackedObject.AddComponent<DebugGizmo>();
+        // trackedObject.transform.SetParent(this.transform);
+        // trackedObject.transform.position = worldPosition;
+        // trackedObject.transform.rotation = worldRotation;
+        trackedObject.name = objName;
+        trackedObjects.Add(objID, trackedObject);
+
+        Debug.Log($"Tracked object {objID} spawned under {parentName} at {position} with rotation {orientation.eulerAngles}, class: {objClass}");
+
+    }
+
+    void UpdateTrackedObject(GameObject parent, GameObject trackedObject, JObject obj)
+    {
+        string parentName = parent.name;
+        string objClass = GetObjectClass(obj);
+        string objID = new Guid(obj["object_id"].ToObject<byte[]>()).ToString();
+
+        Pose pos = GetPoseFromMsg(obj);
+        if (pos == null || pos.position == null || pos.orientation == null)
+        {
+            Debug.LogWarning($"Invalid pose for tracked object {objID}. Skipping update.");
+            return;
+        }
+
+        Transform parentTransform = parent.transform;
+        Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
+        Quaternion orientation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
+
+        Vector3 worldPosition = mapOrigin.TransformPoint(position);
+        Quaternion worldRotation = orientation; // Placeholder. Also convert for worldRotation
+
+        trackedObject.transform.position = worldPosition;
+        trackedObject.transform.rotation = worldRotation;
+
+        Debug.Log($"Tracked object: {objID} of parent: {parentName} updated. ");
+
+
+
+    }
+
+    void DespawnTrackedObject()
+    {
+        // Implementation
+    } 
+
+
+    private void SubscribeToEvents()
+    {
+        Debug.Log("Subscribing to events");
+        websocket.SendText("START-SEND-EVENTS");
+    }
+
+    private void SubscribeToMessages()
+    {
+        Debug.Log("Subscribing to messages");
+        websocket.SendText("START-SEND-MESSAGES");
+    }
+
+    private void SubscribeToAnnouncements()
+    {
+        Debug.Log("Subscribing to announcements");
+        websocket.SendText("START-SEND-ANNOUNCEMENTS");
+    }
+
+    
     string getObjectClass1(JObject payload)
     {
         string classID = payload["classification"][0]["label"].ToString();
@@ -312,50 +442,6 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         return classMap.TryGetValue(classID, out string objClass) ? objClass : "unknown";
     }
 
-    void SpawnTrackedObject(string parentName, JObject obj)
-    {
-        string objClass = GetObjectClass(obj);
-        string objName = $"{objClass}_{obj["object_id"]}";
-        string objKey = $"{parentName}/{objName}";
-
-        // Check if existing
-
-        if (!agents.TryGetValue(parentName, out GameObject parent))
-        {
-            Debug.LogWarning($"Parent {parentName} not found for tracked object {objName}.");
-            return;
-        }
-
-        if (trackedObjects.TryGetValue(objKey, out GameObject existingObject))
-        {
-            Debug.Log($"Tracked Object {objName} already exists under {parentName}");
-            return;
-        }
-
-        // Spawning new Object
-        Pose pos = GetPoseFromMsg(obj);
-        if (pos == null || pos.position == null || pos.orientation == null)
-        {
-            Debug.LogWarning($"Invalid pose for tracked object {objName}. Skipping spawn.");
-            return;
-        }
-
-        Vector3 position = ConvertRos2UnityPosition(new Vector3(pos.position.x, pos.position.y, pos.position.z));
-        // Vector3 worldPosition = existingObject.TransformPoint(position);
-        Quaternion orientation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
-
-        GameObject trackedObject = new GameObject();
-        trackedObject.AddComponent<GizmoData>().color = Color.yellow;
-        // var gizmo = trackedObject.AddComponent<DebugGizmo>();
-        trackedObject.transform.SetParent(parent.transform);
-        trackedObject.transform.localPosition = position;
-        trackedObject.transform.localRotation = orientation;
-        trackedObject.name = objName;
-        trackedObjects.Add(objKey, trackedObject);
-
-        Debug.Log($"Tracked object {objName} spawned under {parentName} at {position} with rotation {orientation.eulerAngles}, class: {objClass}");
-
-    }
 
     void spawnTrackedObject(string parentName, JObject obj)
     {
@@ -417,12 +503,12 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         return pos;
     }
 
-    Vector3 ConvertRos2UnityPosition(Vector3 rosPos)
+    Vector3 ConvertRos2UnityPosition1(Vector3 rosPos)
     {
         Vector3 RosToUnityPosition = new Vector3(1f, -1f, 1f);
         return Vector3.Scale(rosPos, RosToUnityPosition);
     }
-    Quaternion ConvertRos2UnityRotation(Quaternion rosQuat)
+    Quaternion ConvertRos2UnityRotation1(Quaternion rosQuat)
     {
         Quaternion frameAlignment = Quaternion.Euler(90f, 0f, 90f);
         Quaternion alignedQuat = frameAlignment * rosQuat;
@@ -434,24 +520,31 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         return Quaternion.Euler(euler);
     }
 
-    Quaternion ConvertRos2UnityRotation1(Quaternion rosQuat)
+    Vector3 ConvertRos2UnityPosition(Vector3 rosPos)
     {
-         Quaternion RosToUnityRotation = Quaternion.Euler(0f, 180f, 0f);
-        return RosToUnityRotation * rosQuat;
+        return new Vector3(-rosPos.y,rosPos.z, rosPos.x);
+    }
+    Quaternion ConvertRos2UnityRotation(Quaternion rosQuat)
+    {
+        Vector3 rosEuler = RosQuaternionToEuler(rosQuat);
+
+        Vector3 unityEuler = new Vector3(rosEuler.y * Mathf.Rad2Deg, -rosEuler.z * Mathf.Rad2Deg, -rosEuler.x * Mathf.Rad2Deg);
+        
+        return Quaternion.Euler(unityEuler);
     }
 
-    Vector3 ConvertRos2UnityPosition1(Vector3 rosPos)
+    private static Vector3 RosQuaternionToEuler(Quaternion q)
     {
-        // Changed from: new Vector3(rosPos.x, -rosPos.y, rosPos.z) (for mapOrigin rotation -90° X, -180° Y)
-        // New: Map ROS (X-forward, Y-left, Z-up) to Unity (Z-forward, X-right, Y-up) -> (z, -y, x)
-        return new Vector3(-rosPos.x, rosPos.z, -rosPos.y);
+        // Unity’s Quaternion.eulerAngles gives degrees, but we want radians first
+        Vector3 eulerDeg = q.eulerAngles;
+        return new Vector3(
+            eulerDeg.x * Mathf.Deg2Rad,
+            eulerDeg.y * Mathf.Deg2Rad,
+            eulerDeg.z * Mathf.Deg2Rad
+        );
     }
 
     
-
-
-
-
     JToken DecodeBase64ToJToken(JToken token)
     {
         if (token.Type == JTokenType.String)
@@ -484,7 +577,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     private void OnDrawGizmos()
     {
         // New: Add debug log to confirm method is called
-        Debug.Log($"OnDrawGizmos called, trackedObjects count: {trackedObjects?.Count ?? 0}");
+        // Debug.Log($"OnDrawGizmos called, trackedObjects count: {trackedObjects?.Count ?? 0}");
         if (trackedObjects == null || trackedObjects.Count == 0)
         {
             Debug.LogWarning("No tracked objects to draw gizmos for.");
@@ -498,8 +591,20 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             if (gizmo != null)
             {
                 Gizmos.color = gizmo.color;
-                Gizmos.DrawSphere(obj.transform.position, 0.5f);
-                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 0.7f);
+                Gizmos.DrawSphere(obj.transform.position, 1f);
+                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
+            }
+        }
+
+        foreach (var pair in agents)
+        {
+            GameObject obj = pair.Value;
+            GizmoData gizmo = obj.GetComponent<GizmoData>();
+            if (gizmo != null)
+            {
+                Gizmos.color = gizmo.color;
+                Gizmos.DrawSphere(obj.transform.position, 1f);
+                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
             }
         }
         // Existing: Draw mapOrigin gizmo
