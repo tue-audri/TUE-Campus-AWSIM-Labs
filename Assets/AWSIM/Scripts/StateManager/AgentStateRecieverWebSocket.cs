@@ -12,10 +12,14 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
 
     [SerializeField] private GameObject unknownPrefab; // Default prefab for unknown class
-    [SerializeField] public GameObject vehiclePrefab; // Assign agent vehicle prefab in Inspector
-    [SerializeField] public GameObject trackedCar; // Assign tracked car prefab in Inspector
-    [SerializeField] public GameObject trackedTruck; // Assign tracked truck prefab in Inspector
-    [SerializeField] public GameObject trackedPedestrian; // Assign tracked pedesrian prefab in Inspector
+    // [SerializeField] private AssetBundle unknownBundle;
+    [SerializeField] private GameObject vehiclePrefab; // Assign agent vehicle prefab in Inspector
+    [SerializeField] private GameObject trackedCar; // Assign tracked car prefab in Inspector
+    // [SerializeField] public AssetBundle carBundle;
+    [SerializeField] private GameObject trackedTruck; // Assign tracked truck prefab in Inspector
+    // [SerializeField] /public AssetBundle truckBundle;
+    [SerializeField] private GameObject trackedPedestrian; // Assign tracked pedesrian prefab in Inspector
+    [SerializeField] public AssetBundle pedestrianBundle;
     [SerializeField] private Transform mapOrigin;
     [SerializeField] private Transform mapOriginMod;
     private WebSocket websocket;
@@ -29,6 +33,14 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         { "6", "bicycle" }, { "7", "pedestrian" }
     };
     private Dictionary<string, GameObject> prefabMap = new Dictionary<string, GameObject>();
+    // private Dictionary<string, AssetBundle> prefabMap = new Dictionary<string, AssetBundle>();
+    // private Dictionary<string, string[]> rosClassToPrefabMap = new Dictionary<string, string[]>
+    // {
+    //     { "car", new string[] { "car", "car" } },
+    //     { "carsmooth", new string[] { "smoothbundle", "CarPrefabSmooth" } },
+    //     { "pedestrian", new string[] { "pedestrian", "human" } },
+    //     { "bike", new string[] { "bikebundle", "C125" } }
+    // };
 
     void Awake()
     {
@@ -364,6 +376,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         Quaternion worldRotation = orientation; // Placeholder. Also convert for worldRotation
 
         trackedObject.transform.position = worldPosition;
+        // trackedObject.GetComponent<DetectedObject>().updatePosition(worldPosition);
         trackedObject.transform.rotation = worldRotation;
 
         Debug.Log($"Tracked object: {objID} of parent: {parentName} updated. ");
