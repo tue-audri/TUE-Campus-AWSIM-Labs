@@ -1449,35 +1449,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _frameId
-      value: base_link1
+      value: base_link
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _gearReportTopic
-      value: /vehicle/status/gear_status1
+      value: /vehicle/status/gear_status
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _steeringReportTopic
-      value: /vehicle/status/steering_status1
+      value: /vehicle/status/steering_status
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _velocityReportTopic
-      value: /vehicle/status/velocity_status1
+      value: /vehicle/status/velocity_status
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _ActuationStatusTopic
-      value: /vehicle/status/actuation_status1
+      value: /vehicle/status/actuation_status
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _controlModeReportTopic
-      value: /vehicle/status/control_mode1
+      value: /vehicle/status/control_mode
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _hazardLightsReportTopic
-      value: /vehicle/status/hazard_lights_status1
+      value: /vehicle/status/hazard_lights_status
       objectReference: {fileID: 0}
     - target: {fileID: 6426191544371659831, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: _turnIndicatorsReportTopic
-      value: /vehicle/status/turn_indicators_status1
+      value: /vehicle/status/turn_indicators_status
       objectReference: {fileID: 0}
     - target: {fileID: 8380214914162268112, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
       propertyPath: positionTopic
@@ -6888,11 +6888,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38bcf37115c51a8d09c1ab65593ad7fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unknownPrefab: {fileID: 919132149155446097, guid: 66d79fa4756bfdb4fa764601627ab286, type: 3}
+  unknownPrefab: {fileID: 4234894155293637340, guid: 38338b77a8e5a1e0fb50429d29074491, type: 3}
   vehiclePrefab: {fileID: 919132149155446097, guid: 3d0f67ccafcb95c47b4f76c5c28a206f, type: 3}
-  trackedCar: {fileID: 6604874415271597525, guid: 7e772e9ad7eb79040be629d8d04542ab, type: 3}
-  trackedTruck: {fileID: 919132149155446097, guid: 8e58f63ae651bc343825fd41d2c7af82, type: 3}
-  trackedPedestrian: {fileID: 919132149155446097, guid: 66d79fa4756bfdb4fa764601627ab286, type: 3}
+  trackedCar: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
+  trackedTruck: {fileID: 6850358619771218631, guid: 623c335ba6702136cbaeefd6b2485e27, type: 3}
+  trackedPedestrian: {fileID: 500668027104458449, guid: 3c10360215cd22a239eb85fc4b898e95, type: 3}
+  pedestrianBundle: {fileID: 0}
   mapOrigin: {fileID: 82014338}
   mapOriginMod: {fileID: 129052181}
 --- !u!1 &1317468419
