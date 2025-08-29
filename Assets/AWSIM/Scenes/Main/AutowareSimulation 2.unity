@@ -754,6 +754,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 68412056}
   m_CullTransparentMesh: 1
+--- !u!1001 &69844964
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1416174297}
+    m_Modifications:
+    - target: {fileID: 395551823744335936, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_Name
+      value: Toyota Prius Prime 2017 Sensor
+      objectReference: {fileID: 0}
+    - target: {fileID: 1418499260229446615, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: frameId
+      value: base_link
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 66.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 614.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -523
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
 --- !u!1 &98240729
 GameObject:
   m_ObjectHideFlags: 0
@@ -1321,63 +1382,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 161028560}
   m_CullTransparentMesh: 1
---- !u!1001 &161822142
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1416174297}
-    m_Modifications:
-    - target: {fileID: 4981081891045692864, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_Name
-      value: Lexus RX450h 2015 Sample Sensor
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 70.9
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 614.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -585.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.088274844
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.0039841677
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.9960579
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0.0077638635
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0.927
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 169.874
-      objectReference: {fileID: 0}
-    - target: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0.376
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
 --- !u!1 &175319273
 GameObject:
   m_ObjectHideFlags: 0
@@ -2948,7 +2952,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trafficManager: {fileID: 0}
-  egoTransform: {fileID: 1222839950}
+  egoTransform: {fileID: 0}
   timeSourceSelector: {fileID: 1259688278}
   targetFramerate: 60
   commandLineConfigParam: --json_path
@@ -3625,6 +3629,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -7187634506533936879, guid: 44304e574e2ab2573a78d5304b5ee5f5, type: 3}
+--- !u!4 &741899525 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6598552643679994371, guid: 5a020a997629166bdb7caebcd402332a, type: 3}
+  m_PrefabInstance: {fileID: 69844964}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &742436261 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -7515429101286732190, guid: 44304e574e2ab2573a78d5304b5ee5f5, type: 3}
@@ -6453,11 +6462,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!4 &1222839950 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5650763240072318842, guid: 164645b2d105b6b4ab4e3d2e7c65dab2, type: 3}
-  m_PrefabInstance: {fileID: 161822142}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1247977363
 GameObject:
   m_ObjectHideFlags: 0
@@ -7543,7 +7547,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1222839950}
+  - {fileID: 741899525}
   m_Father: {fileID: 543989980}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1427845712
@@ -12837,7 +12841,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mode: 1
-  target: {fileID: 1222839950}
+  target: {fileID: 741899525}
   changeCameraKey: 99
   customCameraIndex: 0
   timeMode: 1
