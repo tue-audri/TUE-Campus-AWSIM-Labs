@@ -203,6 +203,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         agent.name = thing.thingID;
         agents.Add(thing.thingID, agent);
         Debug.Log("AgentCreated with ID: " + thing.thingID + " at position: " + worldPosition + " with rotation: " + rotation);
+        Debug.Log("Agent URDF" + thing.attributes.ToString());
         // set the agent position and orientation
         //agent.transform.position = new Vector3(thing.features.properties.kinematics.pose.position.x, thing.features.properties.kinematics.pose.position.y, thing.features.properties.kinematics.pose.position.z);
     }

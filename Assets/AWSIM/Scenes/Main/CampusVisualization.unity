@@ -6889,7 +6889,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unknownPrefab: {fileID: 4234894155293637340, guid: 38338b77a8e5a1e0fb50429d29074491, type: 3}
-  vehiclePrefab: {fileID: 5540986332296495818, guid: ac0045e489b0fcf8c82835e7a8648aaf, type: 3}
+  vehiclePrefab: {fileID: 0}
   trackedCar: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
   trackedTruck: {fileID: 6850358619771218631, guid: 623c335ba6702136cbaeefd6b2485e27, type: 3}
   trackedPedestrian: {fileID: 500668027104458449, guid: 3c10360215cd22a239eb85fc4b898e95, type: 3}
