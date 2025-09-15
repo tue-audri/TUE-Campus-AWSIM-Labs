@@ -583,6 +583,91 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         return token;
     }
 
+
+
+    // ========================= RVIZ to Unity to Agent obstacle spawning =========================
+
+    public void SendLiveMessage(string thingId, string subject, JToken payload, string path = "/obstacles", bool encodeBase64 = true)
+    {
+        if (websocket == null || websocket.State != WebSocketState.Open)
+        {
+            Debug.LogWarning("WebSocket is not connected. Cannot send live message.");
+            return;
+        }
+
+        // Assuming thingId is in the format "namespace:name"
+        string topic = $"{thingId}/messages/{subject}/things/live/messages/{subject}";
+
+        // TODO: maybe also include optional header construction? Needs changed DittoMessage class.
+        var headers = new Dictionary<string, string>
+        {
+            { "Content-Type", "application/json" },
+            { "response-required", "false" },
+            { "correlation-id", System.Guid.NewGuid().ToString() }
+        };
+
+        JToken messagePayload = encodeBase64 ? JToken.FromObject(EncodeJTokenToBase64(payload)) : payload;
+
+        var liveMessage = new SendLiveMessage
+        {
+            topic = topic,
+            path = path,
+            headers = headers,
+            value = messagePayload
+        };
+
+        string messageJson = JsonConvert.SerializeObject(liveMessage);
+        websocket.SendText(messageJson);
+        // Debug.Log("Sent live message: " + messageJson);
+
+    } // SendLiveMessage()
+
+    public void BroadcastLiveToAgents(JToken payload, string subject, string path = "/obstacles", bool encodeBase64 = true)
+    {
+        if (agents == null || agents.Count == 0)
+        {
+            Debug.LogWarning("No agents available to broadcast live message.");
+            return;
+        }
+        Debug.Log($"Broadcasting live message to {agents.Count} agents.");
+
+        foreach (var agent in agents)
+        {
+            string thingId = agent.Key; //! Assuming the key is the thingId
+            SendLiveMessage(thingId, subject, payload, path, encodeBase64);
+        }
+    } // BroadcastLiveToAgents()
+
+
+
+    [Serializable]
+    public class SendLiveMessage
+    { 
+        public string topic;
+        public string path;
+        public Disctionary<string, string> headers;
+        public JToken value; // If value is a complex object, use: public ValueType value;
+    }
+
+
+    private static string EncodeJTokenToBase64(JToken token)
+    {
+        string jsonString = token.ToString(Formatting.None);
+        byte[] utf8Bytes = Encoding.UTF8.GetBytes(jsonString);
+        return Convert.ToBase64String(utf8Bytes);
+    } // EncodeJTokenToBase64()
+
+
+
+
+
+
+
+
+
+
+
+
     // New: Component to store gizmo color
     public class GizmoData : MonoBehaviour
     {
