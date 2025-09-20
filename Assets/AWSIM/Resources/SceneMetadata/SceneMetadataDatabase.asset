@@ -29,5 +29,3 @@ MonoBehaviour:
     isSs2Scene: 1
   - sceneName: AutowareSimulationScenarioSimulator
     isSs2Scene: 1
-  - sceneName: CampusVisualization 1
-    isSs2Scene: 0
