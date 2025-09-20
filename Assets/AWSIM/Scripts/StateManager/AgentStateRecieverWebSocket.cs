@@ -2,15 +2,26 @@
 using UnityEngine;
 using NativeWebSocket;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using ROS2;
+using AWSIM;
+using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
+using M2MqttUnity;
 
 public class AgentStateRecieverWebSocket : MonoBehaviour
 {
 
-
+    [SerializeField] private Transform mapOriginMod;
+    [Header("ROS Config")]
+    [SerializeField] string dummyPerceptionTopic = "/simulation/dummy_perception_publisher/object_info";
+    [SerializeField] QoSSettings qosSettings = new QoSSettings();
+    [Header("Object Prefabs")]
     [SerializeField] private GameObject unknownPrefab; // Default prefab for unknown class
     // [SerializeField] private AssetBundle unknownBundle;
     [SerializeField] private GameObject vehiclePrefab; // Assign agent vehicle prefab in Inspector
@@ -19,12 +30,26 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     [SerializeField] private GameObject trackedTruck; // Assign tracked truck prefab in Inspector
     // [SerializeField] /public AssetBundle truckBundle;
     [SerializeField] private GameObject trackedPedestrian; // Assign tracked pedesrian prefab in Inspector
-    [SerializeField] public AssetBundle pedestrianBundle;
+
     [SerializeField] private Transform mapOrigin;
-    [SerializeField] private Transform mapOriginMod;
+
     private WebSocket websocket;
+    // MQTT Client Fields
+    private MqttClient mqttClient;
+    private bool mqttConnected = false;
+    private JsonSerializerSettings cleanJsonSettings;
+    [Header("MQTT Configuration")]
+    [SerializeField] private string mqttBrokerAddress = "localhost";
+    [SerializeField] private int mqttBrokerPort = 1883;
+    [SerializeField] private string mqttClientId = "AWSIM_ROS2_Bridge";
+    [SerializeField] private string mqttTopic = "pingpong/V2X/dummy_objects";
+    [SerializeField] private bool enableMqttLogging = true;
+
     private Dictionary<string, GameObject> agents = new Dictionary<string, GameObject>();
     private Dictionary<string, GameObject> trackedObjects = new Dictionary<string, GameObject>();
+
+    // Subscriber DummyPerceptionTopic
+        ISubscription<tier4_simulation_msgs.msg.DummyObject> dummyPerceptionSubscriber;
 
     private readonly Dictionary<string, string> classMap = new Dictionary<string, string>
     {
@@ -58,11 +83,26 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
     async void Start()
     {
+        // Subscribe to Dummy Perception topic
+        dummyPerceptionSubscriber
+                = SimulatorROS2Node.CreateSubscription<tier4_simulation_msgs.msg.DummyObject>(
+                        dummyPerceptionTopic, OnObjectInfoReceived, qosSettings.GetQoSProfile());
+
+        
+
+        // Open websocket session
         string base64Auth = Convert.ToBase64String(Encoding.UTF8.GetBytes("ditto:ditto"));
         var headers = new Dictionary<string, string>
         {
             { "Authorization", "Basic " + base64Auth }
         };
+
+        // Initialize JSON settings for clean serialization
+        InitializeJsonSettings();
+
+        // Initialize MQTT client
+        InitializeMQTTClient();
+         
         websocket = new WebSocket("ws://localhost:8080/ws/2", headers);
         websocket.OnOpen += () =>
         {
@@ -129,6 +169,65 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     async void OnApplicationQuit()
     {
         await websocket.Close();
+        CleanupMqttClient();
+
+    }
+
+    // void OnObjectInfoReceived(tier4_simulation_msgs.msg.DummyObject msg)
+    // {
+
+    //     JToken rosToken = JToken.FromObject(msg);        
+    //     string rosJson = rosToken.ToString(Formatting.None);        
+    //     string base64Value = Convert.ToBase64String(Encoding.UTF8.GetBytes(rosJson));
+    //     var headers = new JObject
+    //     {
+    //         ["response-required"] = false,
+    //         ["content-type"] = "application/json",
+    //         ["ditto-sudo"] = true
+    //     };
+
+    //     DittoMessage ditto = new DittoMessage
+    //     {
+    //         topic = $"org.example/simple-car-AV_Virtual_1/things/live/messages/dummyObjects",
+    //         headers = headers,
+    //         path = "/outbox/messages/dummyObjects",
+    //         value = base64Value
+    //     };
+
+
+    //     string json = JsonConvert.SerializeObject(ditto);
+    //     Debug.Log($"ROS msg received: msg {json}");
+    //     websocket.Send(Encoding.UTF8.GetBytes(json));
+
+
+    // }
+    
+    void OnObjectInfoReceived(tier4_simulation_msgs.msg.DummyObject msg)
+    {
+                     
+       try
+        {
+            
+            // Publish ROS2 message directly to MQTT as JSON
+            if (mqttConnected && mqttClient != null && mqttClient.IsConnected)
+            {
+                string rosJson = JsonConvert.SerializeObject(msg,cleanJsonSettings);
+                byte[] messageBytes = Encoding.UTF8.GetBytes(rosJson);
+                Debug.Log($"ROS msg received: msg {rosJson}");
+                mqttClient.Publish(mqttTopic, messageBytes, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, false);
+                
+                if (enableMqttLogging)
+                    Debug.Log($"📤 Published to MQTT topic '{mqttTopic}'");
+            }
+            else if (enableMqttLogging)
+            {
+                Debug.LogWarning("⚠️ MQTT not connected. Message not published.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"❌ Error in OnObjectInfoReceived: {ex.Message}");
+        }
 
     }
 
@@ -204,6 +303,9 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         agents.Add(thing.thingID, agent);
         Debug.Log("AgentCreated with ID: " + thing.thingID + " at position: " + worldPosition + " with rotation: " + rotation);
         Debug.Log("Agent URDF" + thing.attributes.ToString());
+
+        // Apply URDF sensor/link local transforms from created event metadata (e.g., static_tf-like structure)
+        ApplyUrdfTransformsFromCreatedEvent(agent, thing);
         // set the agent position and orientation
         //agent.transform.position = new Vector3(thing.features.properties.kinematics.pose.position.x, thing.features.properties.kinematics.pose.position.y, thing.features.properties.kinematics.pose.position.z);
     }
@@ -223,8 +325,10 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
                 Vector3 worldPosition = mapOrigin.TransformPoint(position);
                 Quaternion rotation = ConvertRos2UnityRotation(new Quaternion(pos.orientation.x, pos.orientation.y, pos.orientation.z, pos.orientation.w));
 
-                targetObject.transform.position = worldPosition;
-                targetObject.transform.rotation = rotation;
+                // targetObject.transform.position = worldPosition;
+                targetObject.GetComponent<AWSIM.NPCVehicle>().SetPosition(worldPosition);
+                // targetObject.transform.rotation = rotation;
+                targetObject.GetComponent<AWSIM.NPCVehicle>().SetRotation(rotation);
 
                 
             }
@@ -376,9 +480,11 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         Vector3 worldPosition = mapOrigin.TransformPoint(position);
         Quaternion worldRotation = orientation; // Placeholder. Also convert for worldRotation
 
-        trackedObject.transform.position = worldPosition;
-        // trackedObject.GetComponent<DetectedObject>().updatePosition(worldPosition);
-        trackedObject.transform.rotation = worldRotation;
+        // trackedObject.transform.position = worldPosition;
+        trackedObject.GetComponent<AWSIM.NPCVehicle>().SetPosition(worldPosition);
+        trackedObject.GetComponent<DetectedObject>().updatePosition(worldPosition);
+        // trackedObject.transform.rotation = worldRotation;
+        trackedObject.GetComponent<AWSIM.NPCVehicle>().SetRotation(worldRotation);
 
         Debug.Log($"Tracked object: {objID} of parent: {parentName} updated. ");
 
@@ -409,8 +515,158 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         Debug.Log("Subscribing to announcements");
         websocket.SendText("START-SEND-ANNOUNCEMENTS");
     }
-
     
+    private void InitializeJsonSettings()
+    {
+        cleanJsonSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new ROS2CleanContractResolver(),
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            Formatting = Formatting.Indented,
+            Converters = { new ByteArrayAsIntArrayConverter() }
+        };
+    }
+
+    private void InitializeMQTTClient()
+    {
+        try
+        {
+            // Create MQTT client
+            mqttClient = new MqttClient(mqttBrokerAddress, mqttBrokerPort, false, null, null, MqttSslProtocols.None);
+
+            // Set up event handlers
+            mqttClient.MqttMsgPublishReceived += OnMqttMessageReceived;
+            mqttClient.ConnectionClosed += OnMqttConnectionClosed;
+
+            // Generate unique client ID
+            string uniqueClientId = mqttClientId + "_" + DateTime.Now.Ticks;
+
+            // Connect to broker
+            mqttClient.Connect(uniqueClientId);
+
+            if (mqttClient.IsConnected)
+            {
+                mqttConnected = true;
+                if (enableMqttLogging)
+                    Debug.Log($"✅ MQTT Client connected to {mqttBrokerAddress}:{mqttBrokerPort}");
+            }
+            else
+            {
+                if (enableMqttLogging)
+                    Debug.LogWarning("❌ MQTT Client failed to connect");
+            }
+        }
+        catch (Exception ex)
+        {
+            mqttConnected = false;
+            Debug.LogError($"❌ MQTT Connection Error: {ex.Message}");
+        }
+    }
+
+    private void OnMqttMessageReceived(object sender, MqttMsgPublishEventArgs e)
+    {
+        if (enableMqttLogging)
+        {
+            string receivedMessage = Encoding.UTF8.GetString(e.Message);
+            Debug.Log($"📥 MQTT Message received on '{e.Topic}': {receivedMessage}");
+        }
+    }
+
+    private void OnMqttConnectionClosed(object sender, EventArgs e)
+    {
+        mqttConnected = false;
+        if (enableMqttLogging)
+            Debug.LogWarning("⚠️ MQTT connection closed");
+        
+        // Optional: Attempt reconnection
+        // StartCoroutine(AttemptMqttReconnection());
+    }
+
+    private void CleanupMqttClient()
+    {
+        if (mqttClient != null && mqttClient.IsConnected)
+        {
+            try
+            {
+                mqttClient.Disconnect();
+                if (enableMqttLogging)
+                    Debug.Log("🔌 MQTT Client disconnected");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"❌ Error disconnecting MQTT: {ex.Message}");
+            }
+        }
+        mqttConnected = false;
+    }
+    public class ROS2CleanContractResolver : DefaultContractResolver
+    {
+        public ROS2CleanContractResolver()
+        {
+            // Use camelCase naming strategy to convert "Header" -> "header"
+            NamingStrategy = new CamelCaseNamingStrategy();
+        }
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+            // Skip ROS2 internal properties
+            // if (property.PropertyName == "TypeSupportHandle" ||
+            //     property.PropertyName == "Handle" ||
+            //     property.PropertyName == "IsDisposed")
+            // {
+            //     property.ShouldSerialize = instance => false;
+            // }
+
+
+            return property;
+        }
+    }
+
+    public class ByteArrayAsIntArrayConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(byte[]);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var bytes = value as byte[];
+            if (bytes == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            writer.WriteStartArray();
+            foreach (var b in bytes)
+            {
+                writer.WriteValue((int)b); // force integers instead of Base64
+            }
+            writer.WriteEndArray();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var list = new List<byte>();
+
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            if (reader.TokenType != JsonToken.StartArray)
+                throw new JsonSerializationException("Expected StartArray token when deserializing byte array.");
+
+            while (reader.Read() && reader.TokenType != JsonToken.EndArray)
+            {
+                list.Add(Convert.ToByte(reader.Value));
+            }
+
+            return list.ToArray();
+        }
+    }
+
     string getObjectClass1(JObject payload)
     {
         string classID = payload["classification"][0]["label"].ToString();
@@ -634,6 +890,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     public class DittoMessage
     {
         public string topic;
+        public JObject headers;
         public string path;
         public JToken value; // If value is a complex object, use: public ValueType value;
         public int status;
@@ -689,5 +946,153 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     public class Orientation
     {
         public float x, y, z, w;
+    }
+
+    // Applies local transforms for URDF links present in the created event attributes (static_tf-like entries)
+    private void ApplyUrdfTransformsFromCreatedEvent(GameObject agent, ThingWrapper thing)
+    {
+        if (thing == null || thing.attributes == null)
+        {
+            Debug.LogWarning("ApplyUrdfTransformsFromCreatedEvent: No attributes found in created event.");
+            return;
+        }
+
+        // Find the URDF root under the spawned prefab
+        // Expected hierarchy: URDF/base_link/sensor_kit_base_link/...
+        Transform urdfRoot = agent.transform.Find("URDF");
+        if (urdfRoot == null)
+        {
+            // Try a fallback: search recursively for a transform named "URDF"
+            urdfRoot = FindChildRecursive(agent.transform, "URDF");
+        }
+        if (urdfRoot == null)
+        {
+            Debug.LogWarning($"ApplyUrdfTransformsFromCreatedEvent: URDF root not found under agent {agent.name}.");
+            return;
+        }
+
+        // Support multiple possible payload shapes. Prefer a TF-like array under attributes["static_tf"].
+        // Each element may contain:
+        // - child_frame_id (string)
+        // - parent_frame_id or header.frame_id (string)
+        // - transform: { translation: {x,y,z}, rotation: {x,y,z,w} }
+        // Alternatively, accept entries with pose: { position: {x,y,z}, orientation: {x,y,z,w} }
+        JToken tfArrayToken = thing.attributes["static_tf"] ?? thing.attributes["urdf"] ?? thing.attributes["sensors"]; // fallback keys
+        if (tfArrayToken == null)
+        {
+            Debug.LogWarning("ApplyUrdfTransformsFromCreatedEvent: No static_tf/tf/sensors found in attributes.");
+            return;
+        }
+
+        if (tfArrayToken is JArray tfArray)
+        {
+            foreach (var item in tfArray)
+            {
+                TryApplySingleTfItem(urdfRoot, item);
+            }
+        }
+        else if (tfArrayToken is JObject tfObj)
+        {
+            // If provided as an object/dictionary, iterate properties
+            foreach (var prop in tfObj.Children<JProperty>())
+            {
+                TryApplySingleTfItem(urdfRoot, prop.Value);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("ApplyUrdfTransformsFromCreatedEvent: Unrecognized TF data format.");
+        }
+    }
+
+    private void TryApplySingleTfItem(Transform urdfRoot, JToken tfItem)
+    {
+        if (tfItem == null) return;
+
+        string child = tfItem["child_frame_id"]?.ToString()
+            ?? tfItem["child"]?.ToString()
+            ?? tfItem["name"]?.ToString();
+        string parent = tfItem["parent_frame_id"]?.ToString()
+            ?? tfItem["parent"]?.ToString()
+            ?? tfItem["header"]?["frame_id"]?.ToString();
+
+        if (string.IsNullOrEmpty(child))
+        {
+            Debug.LogWarning("TryApplySingleTfItem: Missing child_frame_id/name in TF item.");
+            return;
+        }
+
+        // Parse translation/rotation (transform or pose)
+        var t = tfItem["transform"] ?? tfItem["pose"];
+        if (t == null)
+        {
+            // Some schemas may inline translation/rotation at top-level
+            t = tfItem;
+        }
+
+        Vector3 translation = Vector3.zero;
+        Quaternion rotation = Quaternion.identity;
+        var transNode = t["translation"] ?? t["position"]; // support both
+        var rotNode = t["rotation"] ?? t["orientation"];
+        if (transNode != null)
+        {
+            translation = new Vector3(
+                transNode["x"]?.Value<float>() ?? 0f,
+                transNode["y"]?.Value<float>() ?? 0f,
+                transNode["z"]?.Value<float>() ?? 0f
+            );
+        }
+        if (rotNode != null)
+        {
+            rotation = new Quaternion(
+                rotNode["x"]?.Value<float>() ?? 0f,
+                rotNode["y"]?.Value<float>() ?? 0f,
+                rotNode["z"]?.Value<float>() ?? 0f,
+                rotNode["w"]?.Value<float>() ?? 0f
+            );
+        }
+
+        // Convert ROS -> Unity for local transforms
+        Vector3 unityLocalPos = ConvertRos2UnityPosition(translation);
+        Quaternion unityLocalRot = ConvertRos2UnityRotation(rotation);
+
+        // Locate the child link under URDF by exact name match
+        Transform childTf = FindChildRecursive(urdfRoot, child);
+        if (childTf == null)
+        {
+            Debug.LogWarning($"TryApplySingleTfItem: Child link '{child}' not found under URDF.");
+            return;
+        }
+
+        // Optional: verify parent exists and matches hierarchy (if provided)
+        if (!string.IsNullOrEmpty(parent))
+        {
+            Transform parentTf = FindChildRecursive(urdfRoot, parent);
+            if (parentTf == null)
+            {
+                Debug.LogWarning($"TryApplySingleTfItem: Parent link '{parent}' not found under URDF (child '{child}'). Proceeding to set local transform of child.");
+            }
+            else if (childTf.parent != parentTf)
+            {
+                // If hierarchy differs, log info but still apply local to current parent
+                Debug.Log($"TryApplySingleTfItem: URDF hierarchy parent of '{child}' is '{childTf.parent?.name}', TF parent is '{parent}'.");
+            }
+        }
+
+        // Apply as local transform
+        childTf.localPosition = unityLocalPos;
+        childTf.localRotation = unityLocalRot;
+    }
+
+    private Transform FindChildRecursive(Transform root, string name)
+    {
+        if (root.name == name) return root;
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var child = root.GetChild(i);
+            var found = FindChildRecursive(child, name);
+            if (found != null) return found;
+        }
+        return null;
     }
 }
