@@ -46,7 +46,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     [SerializeField] private bool enableMqttLogging = true;
 
     private Dictionary<string, GameObject> agents = new Dictionary<string, GameObject>();
-    private Dictionary<string, GameObject> trackedObjects = new Dictionary<string, GameObject>();
+    private Dictionary<string, (GameObject go, float lastSeen)> trackedObjects = new Dictionary<string, (GameObject go, float lastSeen)>();
 
     // Subscriber DummyPerceptionTopic
         ISubscription<tier4_simulation_msgs.msg.DummyObject> dummyPerceptionSubscriber;
@@ -353,6 +353,20 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     void HandleAgentMessage(DittoMessage msg)
     {
         Debug.Log("HELLO FROM MESSAGE HANDLER");
+
+        // Cleanup: despawn tracked objects not seen for > 5 seconds
+        float now = Time.time;
+        const float ttlSeconds = 5f;
+        var toRemove = new List<string>();
+        foreach (var kv in trackedObjects)
+        {
+            if (now - kv.Value.lastSeen > ttlSeconds)
+                toRemove.Add(kv.Key);
+        }
+        foreach (var id in toRemove)
+        {
+            DespawnTrackedObject(id);
+        }
         // It is presently assumed that only tracked object messages use the live message channel
         // The existance probablity or the classification confidence are currently not used for anything.
         string topic = msg.topic;
@@ -383,10 +397,12 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
                 return;
             }
 
-            if (trackedObjects.TryGetValue(objID, out GameObject existingObject))
+            if (trackedObjects.TryGetValue(objID, out var existingEntry))
             {
+                var existingObject = existingEntry.go;
                 Debug.Log($"Tracked Object {objID} already exists under {parentName}");
                 UpdateTrackedObject(parent, existingObject, obj);
+                trackedObjects[objID] = (existingObject, Time.time);
                 return;
             }
             else
@@ -409,20 +425,6 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         string objID = new Guid(obj["object_id"].ToObject<byte[]>()).ToString();
         string objName = $"{objClass}_{objID}";
         string objKey = $"{parentName}/{objName}";
-
-        // Check if existing
-
-        // if (!agents.TryGetValue(parentName, out GameObject parent))
-        // {
-        //     Debug.LogWarning($"Parent {parentName} not found for tracked object {objName}.");
-        //     return;
-        // }
-
-        // if (trackedObjects.TryGetValue(objKey, out GameObject existingObject))
-        // {
-        //     Debug.Log($"Tracked Object {objName} already exists under {parentName}");
-        //     return;
-        // }
 
         // Spawning new Object
         Pose pos = GetPoseFromMsg(obj);
@@ -454,7 +456,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         // trackedObject.transform.position = worldPosition;
         // trackedObject.transform.rotation = worldRotation;
         trackedObject.name = objName;
-        trackedObjects.Add(objID, trackedObject);
+        trackedObjects.Add(objID, (trackedObject, Time.time));
 
         Debug.Log($"Tracked object {objID} spawned under {parentName} at {position} with rotation {orientation.eulerAngles}, class: {objClass}");
 
@@ -482,7 +484,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
         // trackedObject.transform.position = worldPosition;
         trackedObject.GetComponent<AWSIM.NPCVehicle>().SetPosition(worldPosition);
-        trackedObject.GetComponent<DetectedObject>().updatePosition(worldPosition);
+        // trackedObject.GetComponent<DetectedObject>().updatePosition(worldPosition);
         // trackedObject.transform.rotation = worldRotation;
         trackedObject.GetComponent<AWSIM.NPCVehicle>().SetRotation(worldRotation);
 
@@ -492,9 +494,19 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
     }
 
-    void DespawnTrackedObject()
+    void DespawnTrackedObject(string objID)
     {
         // Implementation
+        if (trackedObjects.TryGetValue(objID, out var trackedObject))
+        {
+            Destroy(trackedObject.go);
+            trackedObjects.Remove(objID);
+            Debug.Log($"Destroyed Tracked object : {objID}");
+        }
+        else
+        {
+            Debug.LogWarning($"No tracked object found with ID : {objID}");
+        }
     } 
 
 
@@ -844,46 +856,46 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     {
         public Color color = Color.yellow;
     }
-    private void OnDrawGizmos()
-    {
-        // New: Add debug log to confirm method is called
-        // Debug.Log($"OnDrawGizmos called, trackedObjects count: {trackedObjects?.Count ?? 0}");
-        if (trackedObjects == null || trackedObjects.Count == 0)
-        {
-            Debug.LogWarning("No tracked objects to draw gizmos for.");
-            return;
-        }
+    // private void OnDrawGizmos()
+    // {
+    //     // New: Add debug log to confirm method is called
+    //     // Debug.Log($"OnDrawGizmos called, trackedObjects count: {trackedObjects?.Count ?? 0}");
+    //     if (trackedObjects == null || trackedObjects.Count == 0)
+    //     {
+    //         Debug.LogWarning("No tracked objects to draw gizmos for.");
+    //         return;
+    //     }
 
-        foreach (var pair in trackedObjects)
-        {
-            GameObject obj = pair.Value;
-            GizmoData gizmo = obj.GetComponent<GizmoData>();
-            if (gizmo != null)
-            {
-                Gizmos.color = gizmo.color;
-                Gizmos.DrawSphere(obj.transform.position, 1f);
-                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
-            }
-        }
+    //     foreach (var pair in trackedObjects)
+    //     {
+    //         GameObject obj = pair.Value;
+    //         GizmoData gizmo = obj.GetComponent<GizmoData>();
+    //         if (gizmo != null)
+    //         {
+    //             Gizmos.color = gizmo.color;
+    //             Gizmos.DrawSphere(obj.transform.position, 1f);
+    //             Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
+    //         }
+    //     }
 
-        foreach (var pair in agents)
-        {
-            GameObject obj = pair.Value;
-            GizmoData gizmo = obj.GetComponent<GizmoData>();
-            if (gizmo != null)
-            {
-                Gizmos.color = gizmo.color;
-                Gizmos.DrawSphere(obj.transform.position, 1f);
-                Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
-            }
-        }
-        // Existing: Draw mapOrigin gizmo
-        if (mapOrigin != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(mapOrigin.position, 0.7f);
-        }
-    }
+    //     foreach (var pair in agents)
+    //     {
+    //         GameObject obj = pair.Value;
+    //         GizmoData gizmo = obj.GetComponent<GizmoData>();
+    //         if (gizmo != null)
+    //         {
+    //             Gizmos.color = gizmo.color;
+    //             Gizmos.DrawSphere(obj.transform.position, 1f);
+    //             Gizmos.DrawLine(obj.transform.position, obj.transform.position + obj.transform.forward * 1f);
+    //         }
+    //     }
+    //     // Existing: Draw mapOrigin gizmo
+    //     if (mapOrigin != null)
+    //     {
+    //         Gizmos.color = Color.red;
+    //         Gizmos.DrawSphere(mapOrigin.position, 0.7f);
+    //     }
+    // }
 
     // Data classes for JSON parsing
     [Serializable]
