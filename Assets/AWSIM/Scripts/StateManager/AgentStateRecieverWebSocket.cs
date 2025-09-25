@@ -39,6 +39,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     private bool mqttConnected = false;
     private JsonSerializerSettings cleanJsonSettings;
     [Header("MQTT Configuration")]
+    // [SerializeField] private string mqttBrokerAddress = "131.155.226.204";
     [SerializeField] private string mqttBrokerAddress = "localhost";
     [SerializeField] private int mqttBrokerPort = 1883;
     [SerializeField] private string mqttClientId = "AWSIM_ROS2_Bridge";
@@ -102,7 +103,8 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
         // Initialize MQTT client
         InitializeMQTTClient();
-         
+
+        // websocket = new WebSocket("ws://131.155.226.204:8080/ws/2", headers);
         websocket = new WebSocket("ws://localhost:8080/ws/2", headers);
         websocket.OnOpen += () =>
         {

@@ -2566,22 +2566,22 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1991665608}
     - targetCorrespondingSourceObject: {fileID: 6645213238898740592, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 0
+      insertIndex: -1
       addedObject: {fileID: 1982958053}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 0
+      insertIndex: -1
       addedObject: {fileID: 1628057145}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 1
+      insertIndex: -1
       addedObject: {fileID: 1173662724}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 2
+      insertIndex: -1
       addedObject: {fileID: 1164441518}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 3
+      insertIndex: -1
       addedObject: {fileID: 152295419}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
-      insertIndex: 4
+      insertIndex: -1
       addedObject: {fileID: 1125972182}
     - targetCorrespondingSourceObject: {fileID: 5464727899323153342, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
       insertIndex: -1
@@ -12660,7 +12660,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3648756099762557963, guid: efd0c11a0617722e6ab99129b604739b, type: 3}
       propertyPath: Topic
-      value: /awsim/ground_truth/localization/kinematic_state1
+      value: /Lexus/awsim/ground_truth/localization/kinematic_state1
       objectReference: {fileID: 0}
     - target: {fileID: 3648756099762559989, guid: efd0c11a0617722e6ab99129b604739b, type: 3}
       propertyPath: m_Name
@@ -15044,13 +15044,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _adapter: {fileID: 1469440915538398710}
-  _controlModeReportTopic: /vehicle/status/control_mode
-  _gearReportTopic: /vehicle/status/gear_status
-  _steeringReportTopic: /vehicle/status/steering_status
-  _turnIndicatorsReportTopic: /vehicle/status/turn_indicators_status
-  _hazardLightsReportTopic: /vehicle/status/hazard_lights_status
-  _velocityReportTopic: /vehicle/status/velocity_status
-  _ActuationStatusTopic: /vehicle/status/actuation_status
+  _controlModeReportTopic: /Lexus/vehicle/status/control_mode
+  _gearReportTopic: /Lexus/vehicle/status/gear_status
+  _steeringReportTopic: /Lexus/vehicle/status/steering_status
+  _turnIndicatorsReportTopic: /Lexus/vehicle/status/turn_indicators_status
+  _hazardLightsReportTopic: /Lexus/vehicle/status/hazard_lights_status
+  _velocityReportTopic: /Lexus/vehicle/status/velocity_status
+  _ActuationStatusTopic: /Lexus/vehicle/status/actuation_status
   _frameId: base_link
   _publishHz: 30
   _qosSettings:
@@ -15806,7 +15806,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5621238221860094232, guid: e312a43ad62d38a40b798203047bfe57, type: 3}
       propertyPath: Topic
-      value: /awsim/ground_truth/vehicle/pose
+      value: /Lexus/awsim/ground_truth/vehicle/pose
       objectReference: {fileID: 0}
     - target: {fileID: 5621238221860094233, guid: e312a43ad62d38a40b798203047bfe57, type: 3}
       propertyPath: m_RootOrder
