@@ -42,7 +42,7 @@ namespace AWSIM
         private Quaternion _npcSpawnRotation;
         private Vector3 _npcSpawnPosition;
         private Vector3 _previousPosition;
-        private float _raycastStart = 1.33f;
+        private float _raycastStart = 7.33f;
 
         // Subscriber
         ISubscription<tier4_simulation_msgs.msg.DummyObject> dummyPerceptionSubscriber;
