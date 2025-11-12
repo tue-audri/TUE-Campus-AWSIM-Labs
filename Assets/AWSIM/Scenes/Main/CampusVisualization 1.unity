@@ -2552,6 +2552,18 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: -3846018093981099296, guid: 218714478aeb6604986147a97ba346f3, type: 3}
+    - target: {fileID: 7498363759176325491, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
+      propertyPath: trackedCar
+      value: 
+      objectReference: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
+    - target: {fileID: 7498363759176325491, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
+      propertyPath: trackedTruck
+      value: 
+      objectReference: {fileID: 6850358619771218631, guid: 9bc315af95865dd4bbf4a8f716791609, type: 3}
+    - target: {fileID: 7498363759176325491, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
+      propertyPath: unknownPrefab
+      value: 
+      objectReference: {fileID: 500668027104458449, guid: 27e8a3736efefa447b1f65b33b30908a, type: 3}
     - target: {fileID: 8964151941453080089, guid: 60c6ee0cfd0ccc00e838d8e3b566cd5a, type: 3}
       propertyPath: m_Name
       value: TUECampus_Visualization
