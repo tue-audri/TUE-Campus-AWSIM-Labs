@@ -39,6 +39,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
     private bool mqttConnected = false;
     private JsonSerializerSettings cleanJsonSettings;
     [Header("MQTT Configuration")]
+    // [SerializeField] private string mqttBrokerAddress = "131.155.226.204";
     [SerializeField] private string mqttBrokerAddress = "localhost";
     [SerializeField] private int mqttBrokerPort = 1883;
     [SerializeField] private string mqttClientId = "AWSIM_ROS2_Bridge";
@@ -102,7 +103,8 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
         // Initialize MQTT client
         InitializeMQTTClient();
-         
+
+        // websocket = new WebSocket("ws://131.155.226.204:8080/ws/2", headers);
         websocket = new WebSocket("ws://localhost:8080/ws/2", headers);
         websocket.OnOpen += () =>
         {
@@ -134,11 +136,11 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             JObject json = JObject.Parse(message);
 
 
-            Debug.Log("Received: " + message);
+            // Debug.Log("Received: " + message);
             DittoMessage msg = JsonConvert.DeserializeObject<DittoMessage>(message);
             string[] parts = msg.topic.Split('/');
 
-            Debug.Log("Is events:" + parts[parts.Length - 2].Equals("events"));
+            // Debug.Log("Is events:" + parts[parts.Length - 2].Equals("events"));
 
 
             if (parts[parts.Length - 2].Equals("events"))
@@ -236,7 +238,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
         //DittoMessage msg = JsonUtility.FromJson<DittoMessage>(json);
         // DittoMessage msg = JsonConvert.DeserializeObject<DittoMessage>(json);
         string topic = msg.topic;
-        Debug.Log("Received event: " + topic);
+        // Debug.Log("Received event: " + topic);
         
         
         
@@ -352,11 +354,11 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
 
     void HandleAgentMessage(DittoMessage msg)
     {
-        Debug.Log("HELLO FROM MESSAGE HANDLER");
+        // Debug.Log("HELLO FROM MESSAGE HANDLER");
 
         // Cleanup: despawn tracked objects not seen for > 5 seconds
         float now = Time.time;
-        const float ttlSeconds = 5f;
+        const float ttlSeconds = 2f;
         var toRemove = new List<string>();
         foreach (var kv in trackedObjects)
         {
@@ -383,7 +385,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             Debug.LogWarning("No 'objects' array found in value.");
             return;
         }
-        
+
 
         foreach (JObject obj in objectsArray)
         {
@@ -394,7 +396,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
             {
                 Debug.LogWarning($"Parent {parentName} not found for tracked object {objID}.");
                 // Despawn child object if parent no longer exists?? Is it possible?
-                return;
+                continue;
             }
 
             if (trackedObjects.TryGetValue(objID, out var existingEntry))
@@ -403,7 +405,7 @@ public class AgentStateRecieverWebSocket : MonoBehaviour
                 Debug.Log($"Tracked Object {objID} already exists under {parentName}");
                 UpdateTrackedObject(parent, existingObject, obj);
                 trackedObjects[objID] = (existingObject, Time.time);
-                return;
+                continue;
             }
             else
             {
