@@ -351,7 +351,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2234328852937287312, guid: c50e0b26fb5915e3d8795354cfcda07d, type: 3}
+  - {fileID: 2234328852937287312, guid: 3498b55f1450f0f11bbffbb828f2ef69, type: 3}
   - {fileID: -8978598749037407868, guid: 3498b55f1450f0f11bbffbb828f2ef69, type: 3}
   - {fileID: 4432043952054127362, guid: 3498b55f1450f0f11bbffbb828f2ef69, type: 3}
   m_StaticBatchInfo:
@@ -644,6 +644,7 @@ GameObject:
   - component: {fileID: 8751674887630061743}
   - component: {fileID: 825314793679285457}
   - component: {fileID: 8720018626443062730}
+  - component: {fileID: 2363126743318721794}
   m_Layer: 6
   m_Name: AgentPrius
   m_TagString: Untagged
@@ -733,19 +734,19 @@ MonoBehaviour:
     m_Extent: {x: 0.97, y: 0.9, z: 2.01}
   brakeLight:
     meshRenderer: {fileID: 3377350055610862699}
-    materialIndex: 16
+    materialIndex: 0
     lightingIntensity: 15
     lightingColor: {r: 1, g: 0, b: 0, a: 0}
     lightingExposureWeight: 0.5
   leftTurnSignalLight:
     meshRenderer: {fileID: 1376895837531013827}
-    materialIndex: 17
+    materialIndex: 0
     lightingIntensity: 20
     lightingColor: {r: 1, g: 1, b: 0, a: 0}
     lightingExposureWeight: 0.6
   rightTurnSignalLight:
     meshRenderer: {fileID: 6941002835567311195}
-    materialIndex: 17
+    materialIndex: 0
     lightingIntensity: 20
     lightingColor: {r: 1, g: 1, b: 0, a: 0}
     lightingExposureWeight: 0.6
@@ -780,6 +781,20 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers: []
   m_Enabled: 1
+--- !u!114 &2363126743318721794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2563346304724521988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 106af8365c3564661ad0ec71552f375f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentManager: {fileID: 0}
+  mapOrigin: {fileID: 0}
 --- !u!1 &2965121419855081296
 GameObject:
   m_ObjectHideFlags: 0

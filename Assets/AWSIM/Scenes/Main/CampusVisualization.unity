@@ -1474,8 +1474,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1743169424}
   m_HandleRect: {fileID: 1743169422}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1.0000001
+  m_Size: 0.50229883
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3028,6 +3028,68 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631930839}
   m_CullTransparentMesh: 1
+--- !u!1001 &715965245
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8956085824039883882}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+      propertyPath: m_Name
+      value: Neuron (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+--- !u!4 &715965246 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 11cb210b7d5e85c42893d08aa96f5a4c, type: 3}
+  m_PrefabInstance: {fileID: 715965245}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &770863574
 GameObject:
   m_ObjectHideFlags: 0
@@ -15074,6 +15136,10 @@ MonoBehaviour:
     autoShiftThrottleSensMin: 0.6
     autoShiftFullThrottleDownRevs: 3000
     autoShiftFullThrottleUpRevs: 4500
+    autoShiftBrakeSens: 0
+    autoShiftBrakeSensMax: 0.4
+    autoShiftBrakeSensMaxRpm: 5000
+    autoShiftBrakeSensMinGear: 2
     autoShiftUpInterval: 0.6
     autoShiftDownInterval: 0.2
     automaticTransitionTime: 0.5
@@ -38201,12 +38267,6 @@ MonoBehaviour:
   movementRate: 0.25
   autoCenterRate: 0.01
   ignitionKey: 107
-  steerAxis: Horizontal
-  throttleAndBrakeAxis: Vertical
-  handbrakeAxis: Jump
-  clutchAxis: Fire1
-  gearShiftButton: GearShift
-  gearModeSelectButton: GearMode
   keyboardNumbersSelectGears: 0
   neutralGear: 110
   reverseGear: 114
@@ -56886,13 +56946,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2936290877381538730}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 911346923829371404}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &5954272346077329808
 GameObject:
   m_ObjectHideFlags: 0
@@ -72632,13 +72692,13 @@ MonoBehaviour:
     DurabilityPolicy: 0
     HistoryPolicy: 0
     Depth: 0
-  unknownPrefab: {fileID: 0}
+  unknownPrefab: {fileID: 1084864657961548143, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
   vehiclePrefab: {fileID: 2563346304724521988, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
-  trackedCar: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
-  trackedTruck: {fileID: 6850358619771218631, guid: 623c335ba6702136cbaeefd6b2485e27, type: 3}
-  trackedPedestrian: {fileID: 500668027104458449, guid: 3c10360215cd22a239eb85fc4b898e95, type: 3}
+  trackedCar: {fileID: 6604874415271597525, guid: 7e772e9ad7eb79040be629d8d04542ab, type: 3}
+  trackedTruck: {fileID: 6850358619771218631, guid: 9bc315af95865dd4bbf4a8f716791609, type: 3}
+  trackedPedestrian: {fileID: 500668027104458449, guid: 27e8a3736efefa447b1f65b33b30908a, type: 3}
   mapOrigin: {fileID: 5953068422210021929}
-  mqttBrokerAddress: localhost
+  mqttBrokerAddress: 131.155.238.63
   mqttBrokerPort: 1883
   mqttClientId: AWSIM_ROS2_Bridge
   mqttTopic: pingpong/V2X/dummy_objects
@@ -77532,8 +77592,6 @@ MonoBehaviour:
       clamped: 1
       minAngle: -60
       maxAngle: 60
-    horizontalAxis: Mouse X
-    verticalAxis: Mouse Y
     horizontalSensitivity: 4
     verticalSensitivity: 4
   smoothFollow:
@@ -77570,9 +77628,6 @@ MonoBehaviour:
     panningDamping: 10
     panningBounds: {x: 2, y: 1, z: 4}
     resetPanningOnEnable: 1
-    horizontalAxis: Mouse X
-    verticalAxis: Mouse Y
-    distanceAxis: Mouse ScrollWheel
     debugTargetGizmo: 0
   lookAt:
     hotKey: 285
@@ -77587,13 +77642,9 @@ MonoBehaviour:
     targetRadiusSpeed: 5
     adjustNearPlane: 0
     nearPlaneAtMinFov: 1.5
-    fovAxis: Mouse ScrollWheel
     enableMovement: 0
     movementSpeed: 10
     movementDamping: 5
-    forwardAxis: Forwards
-    sidewaysAxis: Sideways
-    upwardsAxis: Upwards
   free:
     hotKey: 0
     minVerticalAngle: -60
@@ -77608,15 +77659,9 @@ MonoBehaviour:
     fovDamping: 4
     adjustNearPlane: 0
     nearPlaneAtMinFov: 1.5
-    horizontalAxis: Mouse X
-    verticalAxis: Mouse Y
-    fovAxis: Mouse ScrollWheel
     enableMovement: 0
     movementSpeed: 2
     movementDamping: 5
-    forwardAxis: Forwards
-    sidewaysAxis: Sideways
-    upwardsAxis: Upwards
 --- !u!4 &8504170772392074351
 Transform:
   m_ObjectHideFlags: 0
@@ -81215,6 +81260,7 @@ Transform:
   - {fileID: 5956906536326770201}
   - {fileID: 8071719021533316698}
   - {fileID: 3731911371552647632}
+  - {fileID: 715965246}
   m_Father: {fileID: 911346923829371404}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &8956226336745542337
