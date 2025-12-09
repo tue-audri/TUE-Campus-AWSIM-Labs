@@ -13,7 +13,7 @@ namespace CDT{
         public Transform mapOrigin;
         // Class Implementation
         private ConcurrentQueue<DittoMessage> msgQueue = new ConcurrentQueue<DittoMessage>();
-        private List<JObject> spawnRequests = new List<JObject>();
+        private List<TrackedObject> spawnRequests = new List<TrackedObject>();
         private Dictionary<string, AgentInternalState> trackedObjectStates = new Dictionary<string, AgentInternalState>();
 
         // Lifecycle Methods
@@ -25,7 +25,7 @@ namespace CDT{
                 // Debug.Log("Processing Ditto Live Message with topic: " + msg.topic + ". Remaining queue size: " + msgQueue.Count);
                 try
                 {
-                    UpdateTrackedObjectState(msg);
+                    UpdateTrackedObjectStates(msg);
                 }
                 catch (System.Exception e)
                 {
@@ -39,6 +39,18 @@ namespace CDT{
             // loop through the tracked object states and apply the states
         }
 
+        void LateUpdate()
+        {
+            Debug.Log("Spawning " + spawnRequests.Count + " new tracked objects.");
+            foreach (var trackedObject in spawnRequests)
+            {
+                // Spawn the tracked object in the Unity scene
+                Debug.Log("Spawning tracked object with ID: " + trackedObject.object_id.ToString());
+                // Implementation of spawning logic goes here
+            }
+            spawnRequests.Clear();                                      
+        }
+
         // Other Methods
         // ----- Event handler -----
         public void EnqueueMessage(DittoMessage liveMessage)
@@ -47,12 +59,10 @@ namespace CDT{
             // Debug.Log("Added Ditto Live Message with topic: " + liveMessage.topic + " to Message queue. Queue size: " + msgQueue.Count);
         }
 
-        public void UpdateTrackedObjectState(DittoMessage msg)
+        public void UpdateTrackedObjectStates(DittoMessage msg)
         {
             msg.value = StateManagerUtils.DecodeBase64ToJToken(msg.value);    // decode the  value field of live message which is base64 encoded JSON
-            string[] topicParts = msg.topic?.Split('/');
-            // string parentName = topicParts[0] + ":" + topicParts[1];    
-            // GameObject parentGO;       
+            string[] topicParts = msg.topic?.Split('/');      
             Debug.Log("Processing tracked object message for Agent: " + this.gameObject.name + " with topic: " + msg.topic);   
 
             if (msg.value["objects"] == null || msg.value["objects"].Type != JTokenType.Array)
@@ -66,54 +76,60 @@ namespace CDT{
             {
                 TrackedObject trackedObject = objToken.ToObject<TrackedObject>();
                 string objectID = topicParts[1] + ":" + trackedObject.object_id.ToString();
+                trackedObject.parent = topicParts[1];
                 // string objectID = new Guid(objToken["object_id"]?.ToObject<byte[]>()).ToString();
                 Debug.Log("Processing tracked object: " + objectID);
 
                 if (!trackedObjectStates.ContainsKey(objectID))
                 {
-                    spawnRequests.Add(objToken);
+                    spawnRequests.Add(trackedObject);
                     continue;
                 }
 
-                // If the tracked object already exists, update its state in trackedObjectStates list
-                // If the tracked object is new, create a new AgentInternalState and add to trackedObjectStates list               
-                // SpawnTrackedObject(objToken, parentGO);
-                
-
-                // // Find existing tracked object state or create a new one
-                // AgentInternalState trackedObjectState = trackedObjectStates.Find(state => state.agentID == objectID);
-                // if (trackedObjectState == null)
-                // {
-                //     trackedObjectState = new AgentInternalState();
-                //     trackedObjectState.agentID = objectID;
-                //     trackedObjectStates.Add(trackedObjectState);
-                // }
-
-                // // Update the pose
-                // trackedObjectState.pose = pose;
+                // Update existing tracked object state
+                ModifyTrackedObject(trackedObject);
                 
             }
         }
 
-        // public void SpawnTrackedObject(JObject objToken, GameObject parentGO)
-        // {
-        //     AgentInternalState newAgent = new AgentInternalState();
-        //     string objectID = topicParts[1] + ":" + objToken["object_id"]?.ToString(Formatting.None);
-        //     Pose pose = StateManagerUtils.GetPoseFromMessage(objToken?["kinematics"]?["pose_with_covariance"]?["pose"]);
-        //     pose.position = mapOrigin.TransformPoint(pose.position);
-        //     string objClass = StateManagerUtils.GetObjectClass(objToken);
-
-        //     // var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
-        //     // obj.name = objectID;                                                                    // Rename the new object in the Hierarchy window for clarity
-        //     // obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object
-        //     // var agent = obj.GetComponent<NPCVehicle>();                                             // CRITICAL STEP: Get the specific script instance attached to the new GameObject
-
-        //     Debug.Log("detected tracked object with class: " + objClass);
-        // }
-
-        public void UpdateTrackedObject(JObject objToken)
+        public void SpawnTrackedObject(TrackedObject trackedObject)
         {
-            // Implementation
+            AgentInternalState newAgent = new AgentInternalState();
+            string objectID = trackedObject.parent + ":" + trackedObject.object_id.ToString();
+            Pose rosPose = StateManagerUtils.GetPoseFromMessage(trackedObject.kinematics.pose_with_covariance.pose);
+            UnityPose pose = new UnityPose();
+            pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                rosPose.position.x,
+                rosPose.position.y,
+                rosPose.position.z
+            ));
+            pose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                rosPose.orientation.x,
+                rosPose.orientation.y,
+                rosPose.orientation.z,
+                rosPose.orientation.w
+            ));
+            pose.position = mapOrigin.TransformPoint(pose.position);
+            string objClass = StateManagerUtils.GetObjectClass(objToken);
+
+            // retrieve the prefab for this object class from a predefined dictionary or list
+                // Add prefabs as serialized fields in AgentManager?
+            // Spawning Sequence
+            // Pedestrian prefab are different from vehicle. How to handle?
+
+            // var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
+            // obj.name = objectID;                                                                    // Rename the new object in the Hierarchy window for clarity
+            // obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object
+            // var agent = obj.GetComponent<NPCVehicle>();                                             // CRITICAL STEP: Get the specific script instance attached to the new GameObject
+
+            Debug.Log("detected tracked object with class: " + objClass);
+        }
+
+        public void ModifyTrackedObject(TrackedObject trackedObject)
+        {
+            string objectID = trackedObject.parent + ":" + trackedObject.object_id.ToString();
+            Debug.Log("Modifying tracked object state for object ID: " + objectID);
+            // Update the relevant tracked object state variables here
         }
 
     }
