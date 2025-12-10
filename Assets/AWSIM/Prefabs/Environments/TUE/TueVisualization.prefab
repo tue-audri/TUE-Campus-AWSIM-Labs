@@ -401,7 +401,7 @@ MonoBehaviour:
   trackedTruck: {fileID: 6850358619771218631, guid: 9bc315af95865dd4bbf4a8f716791609, type: 3}
   trackedPedestrian: {fileID: 4234894155293637340, guid: 45451c9dee0017949873d87da14d750a, type: 3}
   mapOrigin: {fileID: 8691225396574860528}
-  mqttBrokerAddress: 131.155.238.63
+  mqttBrokerAddress: 131.155.237.183
   mqttBrokerPort: 1883
   mqttClientId: AWSIM_ROS2_Bridge
   mqttTopic: pingpong/V2X/dummy_objects
@@ -11669,15 +11669,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8124666336449484548, guid: 23c16df5d83069869887f387bdf187bd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 612.3
+      value: 621.2
       objectReference: {fileID: 0}
     - target: {fileID: 8124666336449484548, guid: 23c16df5d83069869887f387bdf187bd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.7
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8124666336449484548, guid: 23c16df5d83069869887f387bdf187bd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -423.6
+      value: -490.1
       objectReference: {fileID: 0}
     - target: {fileID: 8124666336449484548, guid: 23c16df5d83069869887f387bdf187bd, type: 3}
       propertyPath: m_LocalRotation.w
