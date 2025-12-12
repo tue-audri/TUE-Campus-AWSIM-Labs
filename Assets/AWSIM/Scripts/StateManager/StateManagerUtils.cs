@@ -66,15 +66,17 @@ namespace CDT
             return decodedToken;
         }
 
-        private readonly Dictionary<string, string> classMap = new Dictionary<string, string>
+        public static readonly Dictionary<string, string> classMap = new Dictionary<string, string>
         {
             { "0", "unknown" }, { "1", "car" }, { "2", "truck" },
             { "3", "bus" }, { "4", "trailer" }, { "5", "motorcycle" },
             { "6", "bicycle" }, { "7", "pedestrian" }
         };
-        string GetObjectClass(JObject payload)
+        public static string GetObjectClass(List<Classification> classification)
         {
-            string classID = payload["classification"]?[0]?["label"]?.ToString() ?? "0";
+            string classID = classification != null && classification.Count > 0
+                ? classification[0].label.ToString()
+                : "0";
             return classMap.TryGetValue(classID, out string objClass) ? objClass : "unknown";
         }
     }

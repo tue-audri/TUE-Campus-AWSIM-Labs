@@ -125,7 +125,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 500668027104458449}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 70
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -175,9 +175,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lerpSpeed: 10
   moveTime: 0.1
+  rotationLerpSpeed: 10
+  rotationMoveTime: 0.1
   useLerp: 1
-  targetPosition: {x: 0, y: 0, z: 0}
-  timeToDeath: 5
+  timeToDeath: 2
 --- !u!4 &988938448964725867 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9be5664bcbffdb44fbba862c0e88ed62, type: 3}

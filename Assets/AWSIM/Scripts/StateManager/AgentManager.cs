@@ -130,8 +130,17 @@ namespace CDT
             Pose rosPose = StateManagerUtils.GetPoseFromMessage(thing.features?["status"]?["properties"]?["kinematics"]?["pose"]);
 
             UnityPose pose = new UnityPose();
-            pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(rosPose.position.x, rosPose.position.y, rosPose.position.z));
-            pose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(rosPose.orientation.x, rosPose.orientation.y, rosPose.orientation.z, rosPose.orientation.w));
+            pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                rosPose.position.x, 
+                rosPose.position.y, 
+                rosPose.position.z
+            ));
+            pose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                rosPose.orientation.x, 
+                rosPose.orientation.y, 
+                rosPose.orientation.z, 
+                rosPose.orientation.w
+            ));
             pose.position = mapOrigin.TransformPoint(pose.position);
             // Debug.Log("Extracted Pose - Position: " + pose.position + ", Orientation: " + pose.orientation);
             
@@ -171,8 +180,17 @@ namespace CDT
                 case "/features/status/properties/kinematics":                                      // Kinematic Update
                     Pose rosPose = StateManagerUtils.GetPoseFromMessage(msg.value?["pose"]);           // Extract pose
                     UnityPose pose = new UnityPose();
-                    pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(rosPose.position.x, rosPose.position.y, rosPose.position.z));
-                    pose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(rosPose.orientation.x, rosPose.orientation.y, rosPose.orientation.z, rosPose.orientation.w));
+                    pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                        rosPose.position.x, 
+                        rosPose.position.y, 
+                        rosPose.position.z
+                        ));
+                    pose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                        rosPose.orientation.x, 
+                        rosPose.orientation.y, 
+                        rosPose.orientation.z, 
+                        rosPose.orientation.w
+                        ));
                     pose.position = mapOrigin.TransformPoint(pose.position);
                     agentStates[thingID].pose = pose;                                               // Update agentStates for appropriate entry
                     // Debug.Log("Kinematics Update received for ThingID: " + thingID + " New Position: " + pose.position + " New Orientation: " + pose.orientation);

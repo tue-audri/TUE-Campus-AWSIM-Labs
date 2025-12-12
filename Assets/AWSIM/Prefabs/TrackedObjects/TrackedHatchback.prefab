@@ -1044,9 +1044,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lerpSpeed: 10
   moveTime: 0.1
+  rotationLerpSpeed: 10
+  rotationMoveTime: 0.1
   useLerp: 1
-  targetPosition: {x: 0, y: 0, z: 0}
-  timeToDeath: 5
+  timeToDeath: 1
 --- !u!1 &6969276747894473337
 GameObject:
   m_ObjectHideFlags: 0

@@ -46,6 +46,15 @@ namespace CDT
         // Add other state variables as needed
     }
 
+    public class TrackedObjectInternalState
+    {
+        public DetectedObject detectedObject;
+        public TrackedObjectManager trackedObjectManager;
+        public string objectID;
+        public UnityPose pose;
+        // Add other state variables as needed
+    }
+
     [Serializable]
     public class TrackedObject
     {

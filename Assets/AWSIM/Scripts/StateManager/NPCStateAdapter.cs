@@ -19,5 +19,13 @@ namespace CDT
             vehicle.SetPosition(pose.position);
             vehicle.SetRotation(pose.orientation);
         }
+
+        public static void ApplyState(TrackedObjectInternalState state)
+        {
+            DetectedObject detectedObject = state.detectedObject;
+
+            // State update function calls
+            detectedObject.ApplyPose(state.pose);                 
+        }
     }
 }
