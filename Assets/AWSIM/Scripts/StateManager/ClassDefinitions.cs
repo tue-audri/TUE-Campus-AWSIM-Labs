@@ -39,7 +39,8 @@ namespace CDT
     [Serializable]
     public class AgentInternalState
     {
-        public NPCVehicle npcVehicle;
+        // public NPCVehicle npcVehicle;
+        public PoseDrivenVehicle poseDrivenVehicle;
         public TrackedObjectManager trackedObjectManager;
         public string agentID;
         public UnityPose pose;
@@ -48,7 +49,7 @@ namespace CDT
 
     public class TrackedObjectInternalState
     {
-        public DetectedObject detectedObject;
+        public PoseDrivenVehicle poseDrivenVehicle;
         public TrackedObjectManager trackedObjectManager;
         public string objectID;
         public UnityPose pose;

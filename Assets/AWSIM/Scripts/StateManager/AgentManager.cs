@@ -65,7 +65,8 @@ namespace CDT
         {
             foreach (var agentState in agentStates.Values)
             {
-                NPCStateAdapter.ApplyState(agentState);
+                // NPCStateAdapter.ApplyState(agentState);
+                agentState.poseDrivenVehicle.SetTargetPose(agentState.pose);
             }
         }
 
@@ -147,10 +148,12 @@ namespace CDT
             var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
             obj.name = thing.thingID;                                                               // Rename the new object in the Hierarchy window for clarity
             obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object
-            var agent = obj.GetComponent<NPCVehicle>();                                             // CRITICAL STEP: Get the specific script instance attached to the new GameObject
+            // var agent = obj.GetComponent<NPCVehicle>();                                          
+            var agent = obj.GetComponent<PoseDrivenVehicle>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject
             // agent.VehicleID = thing.thingID;                                                     // Initialize the C# data within that retrieved script instance
             // agent.enabled = true;                                                                    
-            newAgent.npcVehicle = agent;                                                            // Set the npcVehicle reference in the AgentInternalState
+            newAgent.poseDrivenVehicle = agent;                                                     // Set the npcVehicle reference in the AgentInternalState
+            // newAgent.npcVehicle = agent;
             newAgent.trackedObjectManager = obj.GetComponent<TrackedObjectManager>();               // Set the trackedObjectManager reference in the AgentInternalState
             newAgent.trackedObjectManager.mapOrigin = this.mapOrigin;                                        // Set the mapOrigin reference in the TrackedObjectManager
             newAgent.agentID = thing.thingID;                                                       // Set the agentID in the AgentInternalState
@@ -217,7 +220,7 @@ namespace CDT
             string thingID = topicParts[0] + ":" + topicParts[1];
             if (agentStates.TryGetValue(thingID, out AgentInternalState agentState))
             {
-                GameObject agent = agentState.npcVehicle.gameObject;
+                GameObject agent = agentState.poseDrivenVehicle.gameObject;
                 agentStates.Remove(thingID);
                 Destroy(agent);
                 Debug.Log($"Destroyed Agent GameObject : {thingID}");
@@ -233,7 +236,7 @@ namespace CDT
         {
             if (agentStates.ContainsKey(agentID))
             {
-                agentGO = agentStates[agentID].npcVehicle.gameObject;
+                agentGO = agentStates[agentID].poseDrivenVehicle.gameObject;
                 return true;
             }
             agentGO = null;

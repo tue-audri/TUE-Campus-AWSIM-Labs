@@ -353,7 +353,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6909521766264319171}
-  - component: {fileID: 4333959307427838650}
   m_Layer: 0
   m_Name: StateManager
   m_TagString: Untagged
@@ -376,36 +375,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5447630078647263670}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4333959307427838650
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 455581306914986153}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38bcf37115c51a8d09c1ab65593ad7fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mapOriginMod: {fileID: 8691225396574860528}
-  dummyPerceptionTopic: /simulation/dummy_perception_publisher/object_info
-  qosSettings:
-    ReliabilityPolicy: 0
-    DurabilityPolicy: 0
-    HistoryPolicy: 0
-    Depth: 0
-  unknownPrefab: {fileID: 1084864657961548143, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
-  vehiclePrefab: {fileID: 2563346304724521988, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
-  trackedCar: {fileID: 6604874415271597525, guid: 7e772e9ad7eb79040be629d8d04542ab, type: 3}
-  trackedTruck: {fileID: 6850358619771218631, guid: 9bc315af95865dd4bbf4a8f716791609, type: 3}
-  trackedPedestrian: {fileID: 4234894155293637340, guid: 45451c9dee0017949873d87da14d750a, type: 3}
-  mapOrigin: {fileID: 8691225396574860528}
-  mqttBrokerAddress: 131.155.237.183
-  mqttBrokerPort: 1883
-  mqttClientId: AWSIM_ROS2_Bridge
-  mqttTopic: pingpong/V2X/dummy_objects
-  enableMqttLogging: 1
 --- !u!1 &472005520836065598
 GameObject:
   m_ObjectHideFlags: 0

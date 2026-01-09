@@ -1474,8 +1474,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1743169424}
   m_HandleRect: {fileID: 1743169422}
   m_Direction: 2
-  m_Value: 1.0000004
-  m_Size: 0.76954025
+  m_Value: 1.0000017
+  m_Size: 0.93505746
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7046,7 +7046,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa1a117fef5b94575800354783e46f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vehiclePrefab: {fileID: 2563346304724521988, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+  vehiclePrefab: {fileID: 4883906869589418955, guid: 9eec0c6258be20b849c6445a5ad0f558, type: 3}
   mapOrigin: {fileID: 870266703}
 --- !u!114 &1678070940
 MonoBehaviour:
