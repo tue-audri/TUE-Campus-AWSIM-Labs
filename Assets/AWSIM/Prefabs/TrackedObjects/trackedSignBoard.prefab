@@ -58,9 +58,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1084864657961548143, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -6522154676495654603}
-    - targetCorrespondingSourceObject: {fileID: 1084864657961548143, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 2260840629148145172}
   m_SourcePrefab: {fileID: 100100000, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
 --- !u!1 &6149671990531649846 stripped
@@ -68,24 +65,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1084864657961548143, guid: 5dee7e956fab89e4b8ed0e2ff4f1ccac, type: 3}
   m_PrefabInstance: {fileID: 6509443909513545817}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-6522154676495654603
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6149671990531649846}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336787609ef6deebbac2af8d2f45ebe1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lerpSpeed: 10
-  moveTime: 0.1
-  rotationLerpSpeed: 10
-  rotationMoveTime: 0.1
-  useLerp: 1
-  timeToDeath: 1
 --- !u!114 &2260840629148145172
 MonoBehaviour:
   m_ObjectHideFlags: 0

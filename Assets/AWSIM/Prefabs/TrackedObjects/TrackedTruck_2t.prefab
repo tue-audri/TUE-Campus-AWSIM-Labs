@@ -870,9 +870,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2189271265261361943}
   - component: {fileID: 5851389709525032229}
-  - component: {fileID: 7015767329444961931}
   - component: {fileID: 8802681695267733101}
-  - component: {fileID: -1225846599490329042}
   - component: {fileID: -6469705267100470909}
   m_Layer: 6
   m_Name: TrackedTruck_2t
@@ -926,58 +924,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &7015767329444961931
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6850358619771218631}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a121bd4996174cd4397fc8c7b3f85fa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visualObjectRoot: {fileID: 3036737080126558748}
-  centerOfMass: {fileID: 8358185232520029094}
-  rigidbody: {fileID: 5851389709525032229}
-  trailer: {fileID: 0}
-  axleSettings:
-    frontAxle:
-      leftWheel:
-        WheelCollider: {fileID: 6267825790313572290}
-        VisualTransform: {fileID: 3577584663154507942}
-      rightWheel:
-        WheelCollider: {fileID: 6267825791645554534}
-        VisualTransform: {fileID: 7785434592767139985}
-    rearAxle:
-      leftWheel:
-        WheelCollider: {fileID: 6267825791133670055}
-        VisualTransform: {fileID: 5890025356959715131}
-      rightWheel:
-        WheelCollider: {fileID: 6267825791352849920}
-        VisualTransform: {fileID: 3355096203488757789}
-  bounds:
-    m_Center: {x: 0, y: 2.13, z: -0.01}
-    m_Extent: {x: 1.54, y: 2.07, z: 4.6}
-  brakeLight:
-    meshRenderer: {fileID: 141017386329055343}
-    materialIndex: 6
-    lightingIntensity: 15
-    lightingColor: {r: 1, g: 0, b: 0, a: 1}
-    lightingExposureWeight: 0.5
-  leftTurnSignalLight:
-    meshRenderer: {fileID: 141017386329055343}
-    materialIndex: 3
-    lightingIntensity: 20
-    lightingColor: {r: 1, g: 1, b: 0, a: 1}
-    lightingExposureWeight: 0.6
-  rightTurnSignalLight:
-    meshRenderer: {fileID: 141017386329055343}
-    materialIndex: 9
-    lightingIntensity: 20
-    lightingColor: {r: 1, g: 1, b: 0, a: 1}
-    lightingExposureWeight: 0.6
 --- !u!205 &8802681695267733101
 LODGroup:
   m_ObjectHideFlags: 0
@@ -1009,24 +955,6 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers: []
   m_Enabled: 1
---- !u!114 &-1225846599490329042
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6850358619771218631}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336787609ef6deebbac2af8d2f45ebe1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lerpSpeed: 10
-  moveTime: 0.1
-  rotationLerpSpeed: 10
-  rotationMoveTime: 0.1
-  useLerp: 1
-  timeToDeath: 1
 --- !u!114 &-6469705267100470909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1045,7 +973,6 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 5
-  wheelBase: 2.7
   wheelRadius: 0.45
   frontLeftWheel: {fileID: 3577584663154507942}
   frontRightWheel: {fileID: 7785434592767139985}

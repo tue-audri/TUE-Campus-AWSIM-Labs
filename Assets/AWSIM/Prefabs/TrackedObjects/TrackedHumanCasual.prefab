@@ -1504,7 +1504,6 @@ GameObject:
   - component: {fileID: 8634687800024323863}
   - component: {fileID: -318588068335964287}
   - component: {fileID: -1933759251408056577}
-  - component: {fileID: -2447309712517568897}
   - component: {fileID: 536551837778148145}
   m_Layer: 0
   m_Name: TrackedHumanCasual
@@ -1640,24 +1639,6 @@ MonoBehaviour:
   animator: {fileID: 7453072227348134428}
   rayCastMaxDistance: 100
   rayCastOriginOffset: 1
---- !u!114 &-2447309712517568897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4234894155293637340}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 336787609ef6deebbac2af8d2f45ebe1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lerpSpeed: 10
-  moveTime: 0.1
-  rotationLerpSpeed: 10
-  rotationMoveTime: 0.1
-  useLerp: 1
-  timeToDeath: 1
 --- !u!114 &536551837778148145
 MonoBehaviour:
   m_ObjectHideFlags: 0
