@@ -1045,6 +1045,12 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 5
+  wheelBase: 2.7
+  wheelRadius: 0.45
+  frontLeftWheel: {fileID: 3577584663154507942}
+  frontRightWheel: {fileID: 7785434592767139985}
+  rearLeftWheel: {fileID: 5890025356959715131}
+  rearRightWheel: {fileID: 3355096203488757789}
 --- !u!1 &7786019894065468892
 GameObject:
   m_ObjectHideFlags: 0

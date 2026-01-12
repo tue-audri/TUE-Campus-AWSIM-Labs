@@ -65,6 +65,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1812057163387785547}
   m_SourcePrefab: {fileID: 100100000, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+--- !u!4 &3757610670673356638 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6084499947006070929, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+  m_PrefabInstance: {fileID: 6941677094524811215}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4883906869589418955 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2563346304724521988, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
@@ -88,3 +93,24 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 5
+  wheelBase: 2.3
+  wheelRadius: 0.315
+  frontLeftWheel: {fileID: 3757610670673356638}
+  frontRightWheel: {fileID: 8694504487661671746}
+  rearLeftWheel: {fileID: 6468306529985265871}
+  rearRightWheel: {fileID: 5101220674955075524}
+--- !u!4 &5101220674955075524 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2782916315064477707, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+  m_PrefabInstance: {fileID: 6941677094524811215}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6468306529985265871 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4148307895169152768, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+  m_PrefabInstance: {fileID: 6941677094524811215}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8694504487661671746 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1800559476764369549, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+  m_PrefabInstance: {fileID: 6941677094524811215}
+  m_PrefabAsset: {fileID: 0}

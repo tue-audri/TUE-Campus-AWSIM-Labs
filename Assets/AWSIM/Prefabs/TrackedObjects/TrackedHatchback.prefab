@@ -955,7 +955,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6604874415271597525}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a121bd4996174cd4397fc8c7b3f85fa1, type: 3}
   m_Name: 
@@ -1067,6 +1067,12 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 5
+  wheelBase: 2.7
+  wheelRadius: 0.315
+  frontLeftWheel: {fileID: 6487496662301589506}
+  frontRightWheel: {fileID: 5809460537901020900}
+  rearLeftWheel: {fileID: 5484970136985978834}
+  rearRightWheel: {fileID: 2403636974905792953}
 --- !u!1 &6969276747894473337
 GameObject:
   m_ObjectHideFlags: 0
