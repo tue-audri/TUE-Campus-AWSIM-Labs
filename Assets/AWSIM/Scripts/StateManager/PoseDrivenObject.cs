@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CDT
 {
-    public class PoseDrivenVehicle : PoseDrivenEntity
+    public class PoseDrivenObject : PoseDrivenEntity
     {
         // [Header("Vehicle Visuals")]
         // wheel transforms, light references, etc.
@@ -28,4 +28,5 @@ namespace CDT
             // Later: brake lights, indicators, etc.
         }
     }
+
 }

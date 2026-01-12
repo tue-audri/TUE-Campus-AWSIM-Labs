@@ -895,7 +895,7 @@ GameObject:
   - component: {fileID: 7342386509215981977}
   - component: {fileID: 11694345330987065}
   - component: {fileID: 5300515344770757124}
-  - component: {fileID: -4064180097815990632}
+  - component: {fileID: -5048300445577943157}
   m_Layer: 6
   m_Name: TrackedHatchback
   m_TagString: Untagged
@@ -1049,7 +1049,7 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 1
---- !u!114 &-4064180097815990632
+--- !u!114 &-5048300445577943157
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1058,7 +1058,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6604874415271597525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11545f3cbff43ccc3a5da5871b6b3cfa, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f14d34c0ed048bff95f965343a89b0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lerpSpeed: 10
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   rotationLerpSpeed: 10
   rotationMoveTime: 0.1
   useLerp: 1
-  timeToDeath: 1
+  timeToDeath: 5
 --- !u!1 &6969276747894473337
 GameObject:
   m_ObjectHideFlags: 0

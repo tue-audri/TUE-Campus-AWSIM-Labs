@@ -163,11 +163,11 @@ namespace CDT{
             var obj = UnityEngine.Object.Instantiate(prefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
             obj.name = objectID;                                                                    // Rename the new object in the Hierarchy window for clarity
             obj.transform.parent = this.transform.parent;                                                  // Organize the object in the Unity Hierarchy under a parent object
-            PoseDrivenVehicle detObj = obj.GetComponent<PoseDrivenVehicle>();   // Switch to PoseDrivenVehicle                                          // CRITICAL STEP: Get the specific script instance attached to the new GameObject
+            PoseDrivenEntity detObj = obj.GetComponent<PoseDrivenEntity>();   // Switch to PoseDrivenVehicle                                          // CRITICAL STEP: Get the specific script instance attached to the new GameObject
             detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
             newObject.pose = pose;
             newObject.objectID = objectID;
-            newObject.poseDrivenVehicle = detObj;
+            newObject.poseDrivenEntity = detObj;
             newObject.trackedObjectManager = this;                                                                                    // Register the DetectedObject with this TrackedObjectManager
             trackedObjectStates.Add(objectID, newObject);
             Debug.Log("Spawned tracked object with ID: " + objectID + " of class: " + objClass);
@@ -193,7 +193,7 @@ namespace CDT{
             pose.position = mapOrigin.TransformPoint(pose.position);
             TrackedObjectInternalState targetObject = trackedObjectStates[objectID];
             targetObject.pose = pose;
-            targetObject.poseDrivenVehicle.SetTargetPose(pose);
+            targetObject.poseDrivenEntity.SetTargetPose(pose);
 
             // Debug.Log("Modifying tracked object state for object ID: " + objectID);
             // Update the relevant tracked object state variables here
@@ -204,7 +204,7 @@ namespace CDT{
             if (trackedObjectStates.ContainsKey(objectID))
             {
                 TrackedObjectInternalState targetObject = trackedObjectStates[objectID];
-                UnityEngine.Object.Destroy(targetObject.poseDrivenVehicle.gameObject);
+                UnityEngine.Object.Destroy(targetObject.poseDrivenEntity.gameObject);
                 trackedObjectStates.Remove(objectID);
                 Debug.Log("Removed tracked object with ID: " + objectID);
             }

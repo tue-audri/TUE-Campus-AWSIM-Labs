@@ -873,7 +873,7 @@ GameObject:
   - component: {fileID: 7015767329444961931}
   - component: {fileID: 8802681695267733101}
   - component: {fileID: -1225846599490329042}
-  - component: {fileID: 7686023850242223719}
+  - component: {fileID: -6469705267100470909}
   m_Layer: 6
   m_Name: TrackedTruck_2t
   m_TagString: Untagged
@@ -933,7 +933,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6850358619771218631}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a121bd4996174cd4397fc8c7b3f85fa1, type: 3}
   m_Name: 
@@ -1027,7 +1027,7 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 1
---- !u!114 &7686023850242223719
+--- !u!114 &-6469705267100470909
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1036,7 +1036,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6850358619771218631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11545f3cbff43ccc3a5da5871b6b3cfa, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f14d34c0ed048bff95f965343a89b0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lerpSpeed: 10
@@ -1044,7 +1044,7 @@ MonoBehaviour:
   rotationLerpSpeed: 10
   rotationMoveTime: 0.1
   useLerp: 1
-  timeToDeath: 1
+  timeToDeath: 5
 --- !u!1 &7786019894065468892
 GameObject:
   m_ObjectHideFlags: 0

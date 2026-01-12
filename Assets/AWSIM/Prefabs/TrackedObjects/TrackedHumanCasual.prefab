@@ -1505,7 +1505,7 @@ GameObject:
   - component: {fileID: -318588068335964287}
   - component: {fileID: -1933759251408056577}
   - component: {fileID: -2447309712517568897}
-  - component: {fileID: 6269927253935708265}
+  - component: {fileID: 536551837778148145}
   m_Layer: 0
   m_Name: TrackedHumanCasual
   m_TagString: Untagged
@@ -1658,7 +1658,7 @@ MonoBehaviour:
   rotationMoveTime: 0.1
   useLerp: 1
   timeToDeath: 1
---- !u!114 &6269927253935708265
+--- !u!114 &536551837778148145
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1667,7 +1667,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4234894155293637340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11545f3cbff43ccc3a5da5871b6b3cfa, type: 3}
+  m_Script: {fileID: 11500000, guid: 71cf8c2c70c49b94a89e852e160b6cbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lerpSpeed: 10
