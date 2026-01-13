@@ -162,9 +162,26 @@ namespace CDT{
 
             var obj = UnityEngine.Object.Instantiate(prefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
             obj.name = objectID;                                                                    // Rename the new object in the Hierarchy window for clarity
-            obj.transform.parent = this.transform.parent;                                                  // Organize the object in the Unity Hierarchy under a parent object
-            PoseDrivenEntity detObj = obj.GetComponent<PoseDrivenEntity>();   // Switch to PoseDrivenVehicle                                          // CRITICAL STEP: Get the specific script instance attached to the new GameObject
-            detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
+            obj.transform.parent = this.transform.parent;
+            PoseDrivenEntity detObj;
+            switch (objClass)
+            {
+                case "car":
+                case "truck":
+                    detObj = obj.GetComponent<PoseDrivenVehicle>();   // Switch to PoseDrivenVehicle
+                    detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
+                    break;
+                case "pedestrian":
+                    detObj = obj.GetComponent<PoseDrivenPedestrian>();   // Switch to PoseDrivenPedestrian
+                    detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
+                    break;
+                default:
+                    detObj = obj.GetComponent<PoseDrivenEntity>();   // Switch to generic PoseDrivenEntity
+                    detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
+                    break;
+            }
+            // PoseDrivenEntity detObj = obj.GetComponent<PoseDrivenEntity>();   // Switch to PoseDrivenVehicle                                          // CRITICAL STEP: Get the specific script instance attached to the new GameObject
+            // detObj.Register(this);                            // Register the DetectedObject with this TrackedObjectManager
             newObject.pose = pose;
             newObject.objectID = objectID;
             newObject.poseDrivenEntity = detObj;
@@ -193,7 +210,7 @@ namespace CDT{
             pose.position = mapOrigin.TransformPoint(pose.position);
             TrackedObjectInternalState targetObject = trackedObjectStates[objectID];
             targetObject.pose = pose;
-            targetObject.poseDrivenEntity.SetTargetPose(pose);
+            targetObject.poseDrivenEntity.ApplyTrackedObjectPose(pose);
 
             // Debug.Log("Modifying tracked object state for object ID: " + objectID);
             // Update the relevant tracked object state variables here

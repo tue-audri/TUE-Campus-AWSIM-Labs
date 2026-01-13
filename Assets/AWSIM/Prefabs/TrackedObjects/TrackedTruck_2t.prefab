@@ -972,7 +972,10 @@ MonoBehaviour:
   rotationLerpSpeed: 10
   rotationMoveTime: 0.1
   useLerp: 1
-  timeToDeath: 5
+  timeToDeath: 1
+  localBounds:
+    m_Center: {x: 0, y: 2.13, z: -0.01}
+    m_Extent: {x: 1.54, y: 2.07, z: 4.6}
   wheelRadius: 0.45
   frontLeftWheel: {fileID: 3577584663154507942}
   frontRightWheel: {fileID: 7785434592767139985}

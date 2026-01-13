@@ -82,4 +82,7 @@ MonoBehaviour:
   rotationLerpSpeed: 10
   rotationMoveTime: 0.1
   useLerp: 1
-  timeToDeath: 5
+  timeToDeath: 1
+  localBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}

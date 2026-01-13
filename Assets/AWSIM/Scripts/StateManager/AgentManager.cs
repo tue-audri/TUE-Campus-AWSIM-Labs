@@ -66,7 +66,7 @@ namespace CDT
             foreach (var agentState in agentStates.Values)
             {
                 // NPCStateAdapter.ApplyState(agentState);
-                agentState.poseDrivenEntity.SetTargetPose(agentState.pose);
+                agentState.poseDrivenEntity.ApplyAgentPose(agentState.pose);
             }
         }
 

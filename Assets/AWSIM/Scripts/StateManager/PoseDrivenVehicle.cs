@@ -48,10 +48,10 @@ namespace CDT
             deltaPosition.y = 0; // Ignore vertical movement
 
             float distanceTraveled = deltaPosition.magnitude;
-            float speed = distanceTraveled / Time.deltaTime;
+            float speed = distanceTraveled / Time.fixedDeltaTime;
 
             float deltaYaw = Mathf.DeltaAngle(previousYaw, currentYaw);
-            float yawRate = deltaYaw * Mathf.Deg2Rad / Time.deltaTime;
+            float yawRate = deltaYaw * Mathf.Deg2Rad / Time.fixedDeltaTime;
 
             float steerAngle = 0f;
             if (speed > 0.1f)

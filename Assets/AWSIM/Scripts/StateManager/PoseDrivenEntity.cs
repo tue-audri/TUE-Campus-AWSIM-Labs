@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace CDT
 {   
     public abstract class PoseDrivenEntity : MonoBehaviour
     {
+    
         [Header("Smooth movement Options")]
         [Tooltip("Speed at which the object moves towards the target position")]
         public float lerpSpeed = 10f;
@@ -23,7 +25,8 @@ namespace CDT
         public bool useLerp = true; // Toggle for using SmoothDamp instead of Lerp
 
         [Header("Lifecycle")]
-        public float timeToDeath = 5f; // Time in seconds before the object is destroyed
+        public float timeToDeath = 1f; // Time in seconds before the object is destroyed
+        [SerializeField] private Bounds localBounds;
 
         protected Vector3 targetPosition;
         protected Quaternion targetRotation;
@@ -80,16 +83,57 @@ namespace CDT
             transform.eulerAngles = new Vector3(currentEuler.x, currentYaw, currentEuler.z);
         }
 
-        public virtual void SetTargetPose(UnityPose pose)
+        public virtual void ApplyAgentPose(UnityPose Pose)
+        {
+            SetTargetPose(Pose);
+        }
+
+        public virtual void ApplyTrackedObjectPose(UnityPose centroidPose)
+        {
+            UnityPose rootPose = ConvertCentroidPoseToRoot(centroidPose);
+            SetTargetPose(rootPose);
+        }
+
+        protected void SetTargetPose(UnityPose pose)
         {
             targetPosition = pose.position;
             targetRotation = pose.orientation;
             timeToDeath = 5f; // Reset time to death on pose update
         }
 
+        protected virtual UnityPose ConvertCentroidPoseToRoot(UnityPose centroidPose)
+        {
+            // Debug.Log($"Base ConvertCentroidPoseToRoot used on {name}");
+            Vector3 localOffset = -localBounds.center;
+            Vector3 worldOffset = centroidPose.orientation * localOffset;
+            return new UnityPose
+            {
+                position = centroidPose.position + worldOffset,
+                orientation = centroidPose.orientation
+            };
+        }
+
         public virtual void Register(TrackedObjectManager manager)
         {
             trackedObjectManager = manager;
         }
+        private void OnDrawGizmos()
+        {
+            // Cache Gizmos default values.
+            var cacheColor = Gizmos.color;
+            var cacheMatrix = Gizmos.matrix;
+
+            // Apply color and matrix.
+            Gizmos.color = Color.white;
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
+
+            // Draw wire cube.
+            Gizmos.DrawWireCube(localBounds.center, localBounds.size);
+
+            // Return to default value.
+            Gizmos.color = cacheColor;
+            Gizmos.matrix = cacheMatrix;
+        }
+        
     }
 }
