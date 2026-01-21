@@ -66,7 +66,7 @@ namespace CDT
             foreach (var agentState in agentStates.Values)
             {
                 // NPCStateAdapter.ApplyState(agentState);
-                agentState.poseDrivenEntity.ApplyAgentPose(agentState.pose);
+                agentState.poseDrivenVehicle.ApplyPose(agentState.pose);
             }
         }
 
@@ -85,6 +85,26 @@ namespace CDT
                 }
             }
             spawnRequests.Clear();
+
+            foreach (var agentState in agentStates.Values)
+            {
+                if (agentState.hazardLightStatus <= 1 & agentState.indicatorStatus <= 1)
+                {
+                    agentState.poseDrivenVehicle.SetTurnSignalState(PoseDrivenVehicle.TurnSignalState.OFF);
+                }
+                else if (agentState.indicatorStatus == 2 & agentState.hazardLightStatus <= 1)
+                {
+                    agentState.poseDrivenVehicle.SetTurnSignalState(PoseDrivenVehicle.TurnSignalState.LEFT);
+                }
+                else if (agentState.indicatorStatus == 3 & agentState.hazardLightStatus <= 1)
+                {
+                    agentState.poseDrivenVehicle.SetTurnSignalState(PoseDrivenVehicle.TurnSignalState.RIGHT);
+                }
+                else
+                {
+                    agentState.poseDrivenVehicle.SetTurnSignalState(PoseDrivenVehicle.TurnSignalState.HAZARD);
+                }
+            }
         }      
 
         // Other Methods
@@ -143,16 +163,17 @@ namespace CDT
                 rosPose.orientation.w
             ));
             pose.position = mapOrigin.TransformPoint(pose.position);
+            pose.position = StateManagerUtils.FollowGround(pose.position);
             // Debug.Log("Extracted Pose - Position: " + pose.position + ", Orientation: " + pose.orientation);
             
             var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
             obj.name = thing.thingID;                                                               // Rename the new object in the Hierarchy window for clarity
             obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object
             // var agent = obj.GetComponent<NPCVehicle>();                                          
-            var agent = obj.GetComponent<PoseDrivenEntity>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject
+            var agent = obj.GetComponent<PoseDrivenVehicle>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject
             // agent.VehicleID = thing.thingID;                                                     // Initialize the C# data within that retrieved script instance
             // agent.enabled = true;                                                                    
-            newAgent.poseDrivenEntity = agent;                                                     // Set the npcVehicle reference in the AgentInternalState
+            newAgent.poseDrivenVehicle = agent;                                                     // Set the npcVehicle reference in the AgentInternalState
             // newAgent.npcVehicle = agent;
             newAgent.trackedObjectManager = obj.GetComponent<TrackedObjectManager>();               // Set the trackedObjectManager reference in the AgentInternalState
             newAgent.trackedObjectManager.mapOrigin = this.mapOrigin;                                        // Set the mapOrigin reference in the TrackedObjectManager
@@ -199,18 +220,20 @@ namespace CDT
                     // Debug.Log("Kinematics Update received for ThingID: " + thingID + " New Position: " + pose.position + " New Orientation: " + pose.orientation);
                     break;
                 case "/features/status/properties/hazard_lights_status":                            // Hazard Lights State Update
-                    Debug.Log("Hazard Lights Status Update received for ThingID: " + thingID);
+                    agentStates[thingID].hazardLightStatus = msg.value.Value<int>();
+                    // Debug.Log("Hazard Lights Status Update received for ThingID: " + thingID + " New Status: " + agentStates[thingID].hazardLightStatus);
                     // Extract hazard lights state
                     // Update agentStates for appropriate entry
                     break;
-                case "/features/status/properties/turn_indicator_status":                           // Turn Indicator State Update
-                    Debug.Log("Turn Indicator Status Update received for ThingID: " + thingID);
+                case "/features/status/properties/turn_indicators_status":                           // Turn Indicator State Update
+                    agentStates[thingID].indicatorStatus = msg.value.Value<int>();
+                    // Debug.Log("Turn Indicator Status Update received for ThingID: " + thingID + " New Status: " + agentStates[thingID].indicatorStatus);
                     // Extract turn indicator state
                     // Update agentStates for appropriate entry
                     break;
                 default:
                     throw new System.Exception("Unrecognized modification path: " + path);
-                    break;
+                    // break;
             }  
         }
 
@@ -220,7 +243,7 @@ namespace CDT
             string thingID = topicParts[0] + ":" + topicParts[1];
             if (agentStates.TryGetValue(thingID, out AgentInternalState agentState))
             {
-                GameObject agent = agentState.poseDrivenEntity.gameObject;
+                GameObject agent = agentState.poseDrivenVehicle.gameObject;
                 agentStates.Remove(thingID);
                 Destroy(agent);
                 Debug.Log($"Destroyed Agent GameObject : {thingID}");
@@ -236,7 +259,7 @@ namespace CDT
         {
             if (agentStates.ContainsKey(agentID))
             {
-                agentGO = agentStates[agentID].poseDrivenEntity.gameObject;
+                agentGO = agentStates[agentID].poseDrivenVehicle.gameObject;
                 return true;
             }
             agentGO = null;

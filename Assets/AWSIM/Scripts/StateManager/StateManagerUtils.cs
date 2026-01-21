@@ -12,6 +12,27 @@ namespace CDT
 
     public class StateManagerUtils
     {
+        public static Vector3 FollowGround(Vector3 position)
+        {
+            float rayCastOriginOffset = 1f;
+            float rayCastMaxDistance = 100f;
+            var origin = position + Vector3.up * rayCastOriginOffset;
+            var groundLayerMask = LayerMask.GetMask("Ground");
+            var groundExists = Physics.Raycast(origin, Vector3.down, out var hitInfo, rayCastMaxDistance, groundLayerMask);
+            return groundExists ? hitInfo.point : position;
+            // Debug.DrawRay(origin, Vector3.down * rayCastMaxDistance, groundExists ? Color.green : Color.red, 2f);
+
+            // if (groundExists)
+            // {
+            //     Debug.Log($"[FollowGround] Hit ground at {hitInfo.point} | Collider: {hitInfo.collider.name}");
+            //     return hitInfo.point;
+            // }
+            // else
+            // {
+            //     Debug.LogWarning($"[FollowGround] No ground hit from {origin}, distance {rayCastMaxDistance}, mask {groundLayerMask}");
+            //     return position;
+            // }
+        }
         public static Vector3 ConvertRos2UnityPosition(Vector3 rosPos)
         {
             return new Vector3(-rosPos.y,rosPos.z, rosPos.x);

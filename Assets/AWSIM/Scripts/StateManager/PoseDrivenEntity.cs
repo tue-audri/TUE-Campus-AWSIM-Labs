@@ -32,6 +32,8 @@ namespace CDT
         protected Quaternion targetRotation;
         protected Vector3 velocity = Vector3.zero; // Used for SmoothDamp
         protected float rotationVelocity = 0f; // Used for SmoothDamp on yaw
+        // protected float rayCastOriginOffset = 1f;
+        // protected float rayCastMaxDistance = 100f;
         protected TrackedObjectManager trackedObjectManager;
 
         // Start is called before the first frame update
@@ -39,6 +41,7 @@ namespace CDT
         {
             // Initialize target position and rotation to current transform values
             targetPosition = transform.position;
+            // targetPosition = FollowGround(transform.position);
             targetRotation = transform.rotation;
         }
 
@@ -83,9 +86,9 @@ namespace CDT
             transform.eulerAngles = new Vector3(currentEuler.x, currentYaw, currentEuler.z);
         }
 
-        public virtual void ApplyAgentPose(UnityPose Pose)
+        public virtual void ApplyPose(UnityPose rootPose)
         {
-            SetTargetPose(Pose);
+            SetTargetPose(rootPose);
         }
 
         public virtual void ApplyTrackedObjectPose(UnityPose centroidPose)
@@ -97,11 +100,43 @@ namespace CDT
         protected void SetTargetPose(UnityPose pose)
         {
             targetPosition = pose.position;
+            // targetPosition = FollowGround(targetPosition);
             targetRotation = pose.orientation;
             timeToDeath = 5f; // Reset time to death on pose update
         }
+        // protected Vector3 FollowGround(Vector3 position)
+        // {
+        //     var origin = position + Vector3.up * rayCastOriginOffset;
+        //     var groundLayerMask = LayerMask.GetMask("Ground");
+        //     var groundExists = Physics.Raycast(origin, Vector3.down, out var hitInfo, rayCastMaxDistance, groundLayerMask);
+        //     // return groundExists ? hitInfo.point : position;
+        //     Debug.DrawRay(origin, Vector3.down * rayCastMaxDistance, groundExists ? Color.green : Color.red, 2f);
 
-        protected virtual UnityPose ConvertCentroidPoseToRoot(UnityPose centroidPose)
+        //     if (groundExists)
+        //     {
+        //         Debug.Log($"[FollowGround] Hit ground at {hitInfo.point} | Collider: {hitInfo.collider.name}");
+        //         return hitInfo.point;
+        //     }
+        //     else
+        //     {
+        //         Debug.LogWarning($"[FollowGround] No ground hit from {origin}, distance {rayCastMaxDistance}, mask {groundLayerMask}");
+        //         return position;
+        //     }
+        // }
+
+        // protected virtual UnityPose ConvertCentroidPoseToRoot(UnityPose centroidPose)
+        // {
+        //     // Debug.Log($"Base ConvertCentroidPoseToRoot used on {name}");
+        //     Vector3 localOffset = -localBounds.center;
+        //     Vector3 worldOffset = centroidPose.orientation * localOffset;
+        //     return new UnityPose
+        //     {
+        //         position = centroidPose.position + worldOffset,
+        //         orientation = centroidPose.orientation
+        //     };
+        // }
+
+        public UnityPose ConvertCentroidPoseToRoot(UnityPose centroidPose)
         {
             // Debug.Log($"Base ConvertCentroidPoseToRoot used on {name}");
             Vector3 localOffset = -localBounds.center;

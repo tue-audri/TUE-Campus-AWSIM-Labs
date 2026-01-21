@@ -4,7 +4,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System;
-using System.Collections.Generic;
 using AWSIM;
 namespace CDT
 {
@@ -40,10 +39,12 @@ namespace CDT
     public class AgentInternalState
     {
         // public NPCVehicle npcVehicle;
-        public PoseDrivenEntity poseDrivenEntity;
+        public PoseDrivenVehicle poseDrivenVehicle;
         public TrackedObjectManager trackedObjectManager;
         public string agentID;
         public UnityPose pose;
+        public int indicatorStatus;
+        public int hazardLightStatus;
         // Add other state variables as needed
     }
 
@@ -52,6 +53,7 @@ namespace CDT
         public PoseDrivenEntity poseDrivenEntity;
         public TrackedObjectManager trackedObjectManager;
         public string objectID;
+        public string objClass;
         public UnityPose pose;
         // Add other state variables as needed
     }

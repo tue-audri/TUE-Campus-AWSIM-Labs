@@ -159,6 +159,9 @@ namespace CDT{
             pose.position = mapOrigin.TransformPoint(pose.position);
             string objClass = StateManagerUtils.GetObjectClass(trackedObject.classification);
             GameObject prefab = prefabMap.TryGetValue(objClass, out GameObject mappedPrefab) ? mappedPrefab : unknownPrefab;
+            PoseDrivenEntity prefabPDE = prefab.GetComponent<PoseDrivenEntity>();
+            pose = prefabPDE.ConvertCentroidPoseToRoot(pose);
+            pose.position = StateManagerUtils.FollowGround(pose.position);
 
             var obj = UnityEngine.Object.Instantiate(prefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
             obj.name = objectID;                                                                    // Rename the new object in the Hierarchy window for clarity
@@ -186,6 +189,7 @@ namespace CDT{
             newObject.objectID = objectID;
             newObject.poseDrivenEntity = detObj;
             newObject.trackedObjectManager = this;                                                                                    // Register the DetectedObject with this TrackedObjectManager
+            newObject.objClass = objClass;
             trackedObjectStates.Add(objectID, newObject);
             Debug.Log("Spawned tracked object with ID: " + objectID + " of class: " + objClass);
             Debug.Log("Number of tracked objects being managed: " + trackedObjectStates.Count);
@@ -209,8 +213,9 @@ namespace CDT{
             ));
             pose.position = mapOrigin.TransformPoint(pose.position);
             TrackedObjectInternalState targetObject = trackedObjectStates[objectID];
+            pose = targetObject.poseDrivenEntity.ConvertCentroidPoseToRoot(pose);
             targetObject.pose = pose;
-            targetObject.poseDrivenEntity.ApplyTrackedObjectPose(pose);
+            targetObject.poseDrivenEntity.ApplyPose(pose);
 
             // Debug.Log("Modifying tracked object state for object ID: " + objectID);
             // Update the relevant tracked object state variables here

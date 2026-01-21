@@ -2,14 +2,73 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using System;
 
 namespace CDT
 {
     public class PoseDrivenVehicle : PoseDrivenEntity
     {
-        // [Header("Vehicle Parameters")]
-        // [Tooltip("Vehicle wheel base in meters")]
-        // public float wheelBase = 2.7f;
+        public enum TurnSignalState
+        {
+            OFF,
+            LEFT,
+            RIGHT,
+            HAZARD,
+        }
+
+        [Serializable]
+        public class EmissionMaterial
+        {
+            [SerializeField] MeshRenderer meshRenderer;
+            [SerializeField] int materialIndex;
+            [SerializeField] float lightingIntensity;
+            [SerializeField] Color lightingColor;
+            [SerializeField, Range(0, 1)] float lightingExposureWeight;
+
+            Material material = null;
+            Color defaultEmissionColor;
+            float defaultExposureWeight;
+            bool isOn = false;
+
+            const string EmissionColor = "_EmissionColor";
+            const string EmissionExposureWeight = "_EmissionExposureWeight";
+
+            public void Initialize()
+            {
+                if (material == null)
+                {
+                    material = meshRenderer.materials[materialIndex];
+                    material.EnableKeyword("_EMISSION");
+                    defaultEmissionColor = material.GetColor(EmissionColor);
+                    //  defaultExposureWeight = material.GetFloat(EmissionExposureWeight);
+                }
+            }
+
+            public void Set(bool isLightOn)
+            {
+                if (this.isOn == isLightOn)
+                    return;
+
+                this.isOn = isLightOn;
+                if (isLightOn)
+                {
+                    material.SetColor(EmissionColor, lightingColor * lightingIntensity);
+                    material.SetFloat(EmissionExposureWeight, lightingExposureWeight);
+                }
+                else
+                {
+                    material.SetColor(EmissionColor, defaultEmissionColor);
+                    material.SetFloat(EmissionExposureWeight, defaultExposureWeight);
+                }
+            }
+
+            public void Destroy()
+            {
+                if (material != null)
+                    UnityEngine.Object.Destroy(material);
+            }
+        }
+
         [Tooltip("Vehicle wheel radius in meters")]
         public float wheelRadius = 0.35f;
 
@@ -19,10 +78,21 @@ namespace CDT
         public Transform rearLeftWheel;
         public Transform rearRightWheel;
 
+        [Header("Turn signal parameters")]
+        [SerializeField] EmissionMaterial leftTurnSignalLight;
+        [SerializeField] EmissionMaterial rightTurnSignalLight;
+
         float wheelRotation;
         Vector3 previousPosition;
         float previousYaw;
         float wheelBase;
+        TurnSignalState turnSignalState = TurnSignalState.OFF;
+        float turnSignalTimer = 0;
+        bool currentTurnSignalOn = false;
+
+        // light visual settings const values.
+        const float turnSignalBlinkSec = 0.5f;             // seconds
+        const float brakeLightAccelThreshold = -0.1f;      // m/s
 
         protected override void Start()
         {
@@ -30,13 +100,21 @@ namespace CDT
             previousPosition = transform.position;
             previousYaw = transform.eulerAngles.y;
             wheelBase = GetWheelBase();
+            leftTurnSignalLight.Initialize();
+            rightTurnSignalLight.Initialize();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            UpdateLights();
         }
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
 
             UpdateWheelVisuals();
-            // UpdateLights();
         }
 
         void UpdateWheelVisuals()
@@ -112,7 +190,67 @@ namespace CDT
 
         void UpdateLights()
         {
-            // Later: brake lights, indicators, etc.
+            UpdateTurnSignals(); // Update turn signals
+            // Update brake lights
+        }
+
+        void UpdateTurnSignals()
+        {
+            if (IsAnyTurnSignalInputs() == false)
+            {
+                if (turnSignalTimer != 0)
+                    turnSignalTimer = 0;
+
+                if (currentTurnSignalOn != false)
+                    currentTurnSignalOn = false;
+
+                leftTurnSignalLight.Set(false);
+                rightTurnSignalLight.Set(false);
+
+                return;
+            }
+
+            turnSignalTimer -= Time.deltaTime;
+            if (turnSignalTimer < 0f)
+            {
+                turnSignalTimer = turnSignalBlinkSec;
+                currentTurnSignalOn = !currentTurnSignalOn;
+            }
+
+            var isLeftTurnSignalOn = IsLeftTurnSignalOn();
+            leftTurnSignalLight.Set(isLeftTurnSignalOn);
+
+            var isRightTurnSignalOn = IsRightTurniSignalOn();
+            rightTurnSignalLight.Set(isRightTurnSignalOn);
+
+            // --- inner functions ---
+
+            bool IsAnyTurnSignalInputs()
+            {
+                return turnSignalState == TurnSignalState.LEFT
+                    || turnSignalState == TurnSignalState.RIGHT
+                    || turnSignalState == TurnSignalState.HAZARD;
+            }
+
+            bool IsLeftTurnSignalOn()
+            {
+                return (turnSignalState == TurnSignalState.LEFT
+                    || turnSignalState == TurnSignalState.HAZARD)
+                    && currentTurnSignalOn;
+            }
+
+            bool IsRightTurniSignalOn()
+            {
+                return (turnSignalState == TurnSignalState.RIGHT
+                    || turnSignalState == TurnSignalState.HAZARD)
+                    && currentTurnSignalOn;
+            }
+        }
+
+        public void SetTurnSignalState(TurnSignalState turnSignalState)
+        {
+            if (this.turnSignalState != turnSignalState)
+                this.turnSignalState = turnSignalState;
         }
     }
 }

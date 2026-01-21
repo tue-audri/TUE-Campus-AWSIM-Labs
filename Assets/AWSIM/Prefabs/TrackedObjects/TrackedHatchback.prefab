@@ -1003,6 +1003,18 @@ MonoBehaviour:
   frontRightWheel: {fileID: 5809460537901020900}
   rearLeftWheel: {fileID: 5484970136985978834}
   rearRightWheel: {fileID: 2403636974905792953}
+  leftTurnSignalLight:
+    meshRenderer: {fileID: 0}
+    materialIndex: 0
+    lightingIntensity: 0
+    lightingColor: {r: 0, g: 0, b: 0, a: 0}
+    lightingExposureWeight: 0
+  rightTurnSignalLight:
+    meshRenderer: {fileID: 0}
+    materialIndex: 0
+    lightingIntensity: 0
+    lightingColor: {r: 0, g: 0, b: 0, a: 0}
+    lightingExposureWeight: 0
 --- !u!1 &6969276747894473337
 GameObject:
   m_ObjectHideFlags: 0
