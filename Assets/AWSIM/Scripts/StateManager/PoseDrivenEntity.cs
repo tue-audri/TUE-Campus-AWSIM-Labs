@@ -148,6 +148,22 @@ namespace CDT
             };
         }
 
+        public UnityPose ConvertRootPoseToCentroid(UnityPose rootPose)
+        {
+            Vector3 localOffset = -localBounds.center;
+            Vector3 worldOffset = rootPose.orientation * localOffset;
+            return new UnityPose
+            {
+                position = rootPose.position - worldOffset,
+                orientation = rootPose.orientation
+            };
+        }
+        public Bounds GetLocalBounds()
+        {
+            return localBounds;
+        }
+        
+
         public virtual void Register(TrackedObjectManager manager)
         {
             trackedObjectManager = manager;

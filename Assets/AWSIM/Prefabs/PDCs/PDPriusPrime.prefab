@@ -56,6 +56,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: PDPriusPrime
       objectReference: {fileID: 0}
+    - target: {fileID: 3504672076175569525, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: topic
+      value: /imu/tamagawa/imu_raw
+      objectReference: {fileID: 0}
+    - target: {fileID: 4491231450595323324, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: pointCloud2Publishers.Array.data[0].topic
+      value: /ouster/points
+      objectReference: {fileID: 0}
+    - target: {fileID: 4491231450595323324, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: pointCloud2Publishers.Array.data[1].topic
+      value: /lidar/top/pointcloud_raw_ex
+      objectReference: {fileID: 0}
+    - target: {fileID: 6083689004848796190, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: imageTopic
+      value: /camera/traffic_light/image_raw
+      objectReference: {fileID: 0}
+    - target: {fileID: 6083689004848796190, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: cameraInfoTopic
+      value: /camera/traffic_light/camera_info
+      objectReference: {fileID: 0}
+    - target: {fileID: 7020196663958583740, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: poseTopic
+      value: /gnss/pose
+      objectReference: {fileID: 0}
+    - target: {fileID: 7020196663958583740, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: poseWithCovarianceStampedTopic
+      value: /gnss/pose_with_covariance
+      objectReference: {fileID: 0}
     - target: {fileID: 8751674887630061743, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
       propertyPath: m_UseGravity
       value: 1

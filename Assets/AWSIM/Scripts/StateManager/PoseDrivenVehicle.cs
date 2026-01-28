@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using System;
+using AWSIM;
+using RGLUnityPlugin;
 
 namespace CDT
 {
@@ -251,6 +253,44 @@ namespace CDT
         {
             if (this.turnSignalState != turnSignalState)
                 this.turnSignalState = turnSignalState;
+        }
+
+        public void ConfigureSensors(string topicPrefix)
+        {
+            // List<RglLidarPublisher> lidars = new List<RglLidarPublisher>();
+            var lidars = new List<RglLidarPublisher>(GetComponentsInChildren<RglLidarPublisher>());
+            var imus = new List<ImuRos2Publisher>(GetComponentsInChildren<ImuRos2Publisher>());
+            var cameras = new List<CameraRos2Publisher>(GetComponentsInChildren<CameraRos2Publisher>());
+            var gnssSensors = new List<GnssRos2Publisher>(GetComponentsInChildren<GnssRos2Publisher>());
+
+            foreach (var camera in cameras)
+            {
+                camera.imageTopic = $"{topicPrefix}{camera.imageTopic}";
+                camera.cameraInfoTopic = $"{topicPrefix}{camera.cameraInfoTopic}";
+                camera.ReInitializePublisher();
+            }
+            foreach (var lidar in lidars)
+            {
+                var publishers = lidar.pointCloud2Publishers;
+                foreach (var publisher in publishers)
+                {
+                    publisher.topic = $"{topicPrefix}{publisher.topic}";
+                }
+            }
+
+            foreach (var imu in imus)
+            {
+                imu.topic = $"{topicPrefix}{imu.topic}";
+                imu.ReInitializePublisher();
+            }
+
+            foreach (var gnss in gnssSensors)
+            {
+                gnss.poseTopic = $"{topicPrefix}{gnss.poseTopic}";
+                gnss.poseWithCovarianceStampedTopic = $"{topicPrefix}{gnss.poseWithCovarianceStampedTopic}";
+                gnss.ReInitializePublisher();
+                // gnss.RefreshPublisher(topicPrefix);
+            }
         }
     }
 }

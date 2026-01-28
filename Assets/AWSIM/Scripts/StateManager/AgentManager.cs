@@ -149,7 +149,7 @@ namespace CDT
             AgentInternalState newAgent = new AgentInternalState();
             ThingWrapper thing = JsonConvert.DeserializeObject<ThingWrapper>(msg.value.ToString());
             Pose rosPose = StateManagerUtils.GetPoseFromMessage(thing.features?["status"]?["properties"]?["kinematics"]?["pose"]);
-
+            string[] idParts = thing.thingID.Split('-');
             UnityPose pose = new UnityPose();
             pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
                 rosPose.position.x, 
@@ -166,17 +166,14 @@ namespace CDT
             pose.position = StateManagerUtils.FollowGround(pose.position);
             // Debug.Log("Extracted Pose - Position: " + pose.position + ", Orientation: " + pose.orientation);
             
-            var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world           
-            obj.name = thing.thingID;                                                               // Rename the new object in the Hierarchy window for clarity
-            obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object
-            // var agent = obj.GetComponent<NPCVehicle>();                                          
+            var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world                                                    
             var agent = obj.GetComponent<PoseDrivenVehicle>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject
-            // agent.VehicleID = thing.thingID;                                                     // Initialize the C# data within that retrieved script instance
-            // agent.enabled = true;                                                                    
+            agent.ConfigureSensors(idParts[2]);                                                    // Initialize the C# data within that retrieved script instance
+            obj.name = thing.thingID;                                                               // Rename the new object in the Hierarchy window for clarity
+            obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object                                                                
             newAgent.poseDrivenVehicle = agent;                                                     // Set the npcVehicle reference in the AgentInternalState
-            // newAgent.npcVehicle = agent;
             newAgent.trackedObjectManager = obj.GetComponent<TrackedObjectManager>();               // Set the trackedObjectManager reference in the AgentInternalState
-            newAgent.trackedObjectManager.mapOrigin = this.mapOrigin;                                        // Set the mapOrigin reference in the TrackedObjectManager
+            newAgent.trackedObjectManager.mapOrigin = this.mapOrigin;                               // Set the mapOrigin reference in the TrackedObjectManager
             newAgent.agentID = thing.thingID;                                                       // Set the agentID in the AgentInternalState
             newAgent.pose = pose;                                                                   // Set the pose in the AgentInternalState
             agentStates.Add(thing.thingID, newAgent);                                               // Add the new agent to the agentStates list

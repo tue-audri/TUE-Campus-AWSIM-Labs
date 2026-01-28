@@ -6,6 +6,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
+using UnityEngine.Rendering;
 namespace CDT{
     public class TrackedObjectManager : MonoBehaviour
     {
@@ -62,10 +64,10 @@ namespace CDT{
 
         void LateUpdate()
         {
-            if (spawnRequests.Count > 0)
-            {
-                Debug.Log("Identified " + spawnRequests.Count + " new tracked objects in LateUpdate().");
-            }
+            // if (spawnRequests.Count > 0)
+            // {
+            //     Debug.Log("Identified " + spawnRequests.Count + " new tracked objects in LateUpdate().");
+            // }
             int spawnCount = 0;
             
             foreach (var trackedObject in spawnRequests)
@@ -99,9 +101,129 @@ namespace CDT{
 
         public void UpdateTrackedObjectStates(DittoMessage msg)
         {
-            msg.value = StateManagerUtils.DecodeBase64ToJToken(msg.value);    // decode the  value field of live message which is base64 encoded JSON
+            List<TrackedObject> msgObjects = RetrieveMessageObjects(msg);
+            // Debug.Log("Number of tracked objects in message: " + objectsArray.Count);
+            int newObjectsCount = 0;
+            int objectIndex = 0;
+            foreach (TrackedObject objToken in msgObjects)                                                          // loop through the list
+            {
+                TrackedObjectInternalState matchedState = null;                
+                string matchedOldId = null;
+                float distanceFromCandidate = float.MaxValue;
+
+                // string objectID = topicParts[1] + ":" + ByteArrayToIdString(trackedObject.object_id);
+                // string objectID = trackedObject.parent + ":" + BitConverter.ToString(trackedObject.object_id).Replace("-", "");
+                
+                string objectID = objToken.parent + ":" + new Guid(objToken.object_id).ToString("B");
+                // Debug.Log("Processing tracked object: " + objectID);
+
+                // if (!trackedObjectStates.ContainsKey(objectID))
+                // {
+                //     spawnRequests.Add(trackedObject);
+                //     newObjectsCount += 1;
+                //     continue;
+                // }
+
+                if (!trackedObjectStates.ContainsKey(objectID)) // check if new object token is already being tracked (if-not)
+                {                    
+                    string objClass = StateManagerUtils.GetObjectClass(objToken.classification);
+                    UnityPose incomingPose = new UnityPose();
+                    // Try to find a similar object based on proximity (simple heuristic)
+                    foreach (var kvp in trackedObjectStates)  
+                    {
+                        string candidateID = kvp.Key;
+                        TrackedObjectInternalState candidateState = kvp.Value;
+                        distanceFromCandidate = float.MaxValue;
+
+                        // Object class matching
+                        if (candidateState.objClass != objClass)
+                        {
+                            continue;
+                        }
+
+                        foreach (var to in msgObjects)  // Check if the identified candidate is also in the incoming message
+                        {
+                            string toID = to.parent + ":" + new Guid(to.object_id).ToString("B");
+                            if (toID == candidateID)
+                            {
+                                continue;
+                            }
+                        }
+
+                        // Proximity check
+                        Pose incomingRosPose = objToken.kinematics.pose_with_covariance.pose;
+                        UnityPose inCentPose = new UnityPose();
+                        UnityPose canCentPose = new UnityPose();
+                        incomingPose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                            incomingRosPose.position.x,
+                            incomingRosPose.position.y,
+                            incomingRosPose.position.z
+                        ));
+                        incomingPose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                            incomingRosPose.orientation.x,
+                            incomingRosPose.orientation.y,
+                            incomingRosPose.orientation.z,
+                            incomingRosPose.orientation.w
+                        ));
+                        incomingPose.position = mapOrigin.TransformPoint(incomingPose.position);
+                        incomingPose = candidateState.poseDrivenEntity.ConvertCentroidPoseToRoot(incomingPose);
+                        incomingPose.position = StateManagerUtils.FollowGround(incomingPose.position);
+                        inCentPose = candidateState.poseDrivenEntity.ConvertRootPoseToCentroid(incomingPose);
+                        canCentPose = candidateState.poseDrivenEntity.ConvertRootPoseToCentroid(candidateState.pose);
+                        
+
+                        // float distanceFromCandidate = Vector3.Distance(inCentPose.position, canCentPose.position);
+                        distanceFromCandidate = Vector3.Distance(inCentPose.position, canCentPose.position);
+                        Bounds candidateBounds = candidateState.poseDrivenEntity.GetLocalBounds();
+                        // float distanceFromCandidateX = Mathf.Abs(inCentPose.position.x - canCentPose.position.x);
+                        // float distanceFromCandidateZ = Mathf.Abs(inCentPose.position.z - canCentPose.position.z);
+                        float distanceTolerance = Mathf.Max(candidateBounds.extents.x, candidateBounds.extents.z) * 0.8f;
+                    
+
+                        if (distanceFromCandidate <= distanceTolerance)
+                        {
+                            matchedState = candidateState;
+                            matchedOldId = candidateID;
+                            Debug.Log("Matched new tracked object " + objectID + " to existing object " + matchedOldId + " based on proximity.");
+                            break;
+                        }
+                    }
+                    if (matchedState != null)
+                    {
+                        Debug.Log("Matched state is not null, reassigning ID.");
+                        matchedState.poseDrivenEntity.gameObject.name = objectID; // Update GameObject name
+                        trackedObjectStates.Remove(matchedOldId);
+                        matchedState.objectID = objectID;
+                        matchedState.pose = incomingPose;
+                        trackedObjectStates.Add(objectID, matchedState);
+                        matchedState = null;
+                        matchedOldId = null;
+                        // Debug.Log("Reassigned matched object from old ID: " + matchedOldId + " to new ID: " + objectID);
+                    }
+                    else
+                    {
+                        Debug.Log("No match found for tracked object " + objectID + "distnce from nearest.");
+                        spawnRequests.Add(objToken);
+                        newObjectsCount += 1;
+                        continue;
+                    }
+                }              
+
+                // Update existing tracked object state
+                ModifyTrackedObject(objToken);
+                objectIndex += 1;
+                
+            }
+            // Debug.Log("Spawning" + newObjectsCount + " new tracked objects, and updated " + (
+                    // objectIndex) + " existing tracked objects.");
+        }
+
+        public List<TrackedObject> RetrieveMessageObjects(DittoMessage msg)
+        {
+            List<TrackedObject> messageObjectList = new List<TrackedObject>();
+            msg.value = StateManagerUtils.DecodeBase64ToJToken(msg.value);                                      // decode the  value field of live message which is base64 encoded JSON
             string[] topicParts = msg.topic?.Split('/');      
-            Debug.Log("Processing tracked object message for Agent: " + this.gameObject.name);   
+            // Debug.Log("Processing tracked object message for Agent: " + this.gameObject.name);   
 
             if (msg.value["objects"] == null || msg.value["objects"].Type != JTokenType.Array)
             {
@@ -109,35 +231,14 @@ namespace CDT{
             }
 
             JArray objectsArray = msg.value["objects"] as JArray;                                               // Extract the list of tracked objects from the recieved tracked message
-
-            Debug.Log("Number of tracked objects in message: " + objectsArray.Count);
-            int newObjectsCount = 0;
-            int objectIndex = 0;
-            foreach (JObject objToken in objectsArray)                                                          // loop through the list
+            foreach (JObject objToken in objectsArray)
             {
                 TrackedObject trackedObject = objToken.ToObject<TrackedObject>();
-                // string objectID = topicParts[1] + ":" + ByteArrayToIdString(trackedObject.object_id);
-                // string objectID = trackedObject.parent + ":" + BitConverter.ToString(trackedObject.object_id).Replace("-", "");
                 trackedObject.parent = topicParts[1];
-                string objectID = trackedObject.parent + ":" + new Guid(trackedObject.object_id).ToString("B");
-                // Debug.Log("Processing tracked object: " + objectID);
-
-                if (!trackedObjectStates.ContainsKey(objectID))
-                {
-                    spawnRequests.Add(trackedObject);
-                    newObjectsCount += 1;
-                    continue;
-                }              
-
-                // Update existing tracked object state
-                ModifyTrackedObject(trackedObject);
-                objectIndex += 1;
-                
+                messageObjectList.Add(trackedObject);
             }
-            Debug.Log("Spawning" + newObjectsCount + " new tracked objects, and updated " + (
-                    objectIndex) + " existing tracked objects.");
+            return messageObjectList;
         }
-
         public void SpawnTrackedObject(TrackedObject trackedObject)
         {
             TrackedObjectInternalState newObject = new TrackedObjectInternalState();
