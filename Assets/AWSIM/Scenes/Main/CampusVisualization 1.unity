@@ -13436,7 +13436,7 @@ Rigidbody:
   m_Mass: 2100
   m_Drag: 0
   m_AngularDrag: 0
-  m_CenterOfMass: {x: 0.00002926588, y: 0.39501885, z: 1.1849914}
+  m_CenterOfMass: {x: -0.00002052635, y: 0.3950014, z: 1.1849852}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -13812,8 +13812,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4981081890918097022}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08082228, y: 0.73894477, z: -0.026860073, w: -0.6683614}
-  m_LocalPosition: {x: -39.858337, y: 613.1875, z: -638.11847}
+  m_LocalRotation: {x: 0.0059463214, y: 0.7393054, z: 0.010545921, w: -0.67326146}
+  m_LocalPosition: {x: -39.705322, y: 612.44, z: -638.50525}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -13828,7 +13828,7 @@ Transform:
   - {fileID: 7828524883470111557}
   - {fileID: 518119724777842872}
   m_Father: {fileID: 1416174297}
-  m_LocalEulerAnglesHint: {x: -3.919, y: 263.95, z: 8.958}
+  m_LocalEulerAnglesHint: {x: -1.352, y: 264.65, z: -0.31}
 --- !u!4 &5670635155861591074
 Transform:
   m_ObjectHideFlags: 0

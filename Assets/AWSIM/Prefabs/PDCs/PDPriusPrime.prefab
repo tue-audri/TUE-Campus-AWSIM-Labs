@@ -12,6 +12,58 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCar
+      value: 
+      objectReference: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: unknownPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCarPrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: unknownPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 6149671990531649846, guid: be7846b75a67c6d8d8018efc2c57c35f, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedTruckPrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCarPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 6604874415271597525, guid: a1ea1200f4127232f9d8ae40d91b8843, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCarPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 1942230375395205049, guid: f022ce1d8ed12c05995de8cc61fdd534, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCarPrefabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 4269804189369279792, guid: 5522ada691f8a224c8a9f75270c6f9d1, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedCarPrefabs.Array.data[3]
+      value: 
+      objectReference: {fileID: 4353229664338482508, guid: 9ec5a8cebeb195a8797c587734ec4b7f, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedTruckPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 6850358619771218631, guid: 623c335ba6702136cbaeefd6b2485e27, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedPedestrianPrefabs.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedPedestrianPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 500668027104458449, guid: 3c10360215cd22a239eb85fc4b898e95, type: 3}
+    - target: {fileID: 2363126743318721794, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
+      propertyPath: trackedPedestrianPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 4234894155293637340, guid: 38338b77a8e5a1e0fb50429d29074491, type: 3}
     - target: {fileID: 2486399563716153417, guid: ef9e6f0b11fe0a266830bc0b80fca92e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

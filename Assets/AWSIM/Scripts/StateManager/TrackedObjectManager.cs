@@ -8,29 +8,31 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
+
 namespace CDT{
     public class TrackedObjectManager : MonoBehaviour
     {
         public Transform mapOrigin;
         [Header("Tracked Object Prefabs")]
-        [SerializeField] private GameObject unknownPrefab;                  // Default prefab for unknown class
-        [SerializeField] private GameObject trackedCar;                     // Assign tracked car prefab in Inspector
-        [SerializeField] private GameObject trackedTruck;                   // Assign tracked truck prefab in Inspector
-        [SerializeField] private GameObject trackedPedestrian;              // Assign tracked pedesrian prefab in Inspector
+        [SerializeField] private GameObject[] unknownPrefabs;                  // Default prefab for unknown class
+        // [SerializeField] private GameObject trackedCar;                     // Assign tracked car prefab in Inspector
+        [SerializeField] private GameObject[] trackedCarPrefabs;
+        [SerializeField] private GameObject[] trackedTruckPrefabs;                   // Assign tracked truck prefab in Inspector
+        [SerializeField] private GameObject[] trackedPedestrianPrefabs;              // Assign tracked pedesrian prefab in Inspector
         
         private ConcurrentQueue<DittoMessage> msgQueue = new ConcurrentQueue<DittoMessage>();
         private List<TrackedObject> spawnRequests = new List<TrackedObject>();
         private Dictionary<string, TrackedObjectInternalState> trackedObjectStates = new Dictionary<string, TrackedObjectInternalState>();
-        private Dictionary<string, GameObject> prefabMap = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject[]> prefabMap = new Dictionary<string, GameObject[]>();
 
         // Lifecycle Methods
         void Awake()
         {
             // Initialize prefab map
-            prefabMap["car"] = trackedCar;
-            prefabMap["truck"] = trackedTruck;
-            prefabMap["pedestrian"] = trackedPedestrian;
-            prefabMap["unknown"] = unknownPrefab;
+            prefabMap["car"] = trackedCarPrefabs;
+            prefabMap["truck"] = trackedTruckPrefabs;
+            prefabMap["pedestrian"] = trackedPedestrianPrefabs;
+            prefabMap["unknown"] = unknownPrefabs;
 
             foreach (var pair in prefabMap)
             {
@@ -48,7 +50,7 @@ namespace CDT{
                 // Debug.Log("Processing Ditto Live Message with topic: " + msg.topic + ". Remaining queue size: " + msgQueue.Count);
                 try
                 {
-                    UpdateTrackedObjectStates(msg);
+                    UpdateTrackedObjectStatesV2(msg);
                 }
                 catch (System.Exception e)
                 {
@@ -218,6 +220,42 @@ namespace CDT{
                     // objectIndex) + " existing tracked objects.");
         }
 
+        public void UpdateTrackedObjectStatesV2(DittoMessage msg)
+        {
+            List<TrackedObject> msgObjects = RetrieveMessageObjects(msg);
+            // Debug.Log("Number of tracked objects in message: " + objectsArray.Count);
+            // int newObjectsCount = 0;
+            // int objectIndex = 0;
+
+            foreach (var objToken in trackedObjectStates)    // For each tracked object in trackedObjects
+            {
+                string objectID = objToken.Key;
+                TrackedObjectInternalState trackedObject = objToken.Value;
+                bool objectFoundInMessage = false;
+                
+                foreach (TrackedObject obj in msgObjects) // Check if the object is still in the message
+                {
+                    if (obj.parent + ":" + new Guid(obj.object_id).ToString("B") == objectID) // identify match in msgObjects not efficient to resolve neame everytime like this
+                    {
+                        // Update the state tracked object from message
+                        ModifyTrackedObject(obj); // Update the state tracked object from message
+                        msgObjects.Remove(obj); // remove entry from msgObjects
+                        objectFoundInMessage = true;
+                        break;
+                    }
+                }
+                if (!objectFoundInMessage)
+                {
+                    // remove tracked object
+                    RemoveTrackedObject(objectID);
+                }        
+            }
+            foreach (TrackedObject obj in msgObjects) // for every remaining object in msgObjects
+            {
+                spawnRequests.Add(obj); // add to spawn requests
+            }    
+        }
+        
         public List<TrackedObject> RetrieveMessageObjects(DittoMessage msg)
         {
             List<TrackedObject> messageObjectList = new List<TrackedObject>();
@@ -259,7 +297,8 @@ namespace CDT{
             ));
             pose.position = mapOrigin.TransformPoint(pose.position);
             string objClass = StateManagerUtils.GetObjectClass(trackedObject.classification);
-            GameObject prefab = prefabMap.TryGetValue(objClass, out GameObject mappedPrefab) ? mappedPrefab : unknownPrefab;
+            GameObject[] prefabs = prefabMap.TryGetValue(objClass, out GameObject[] mappedPrefab) ? mappedPrefab : unknownPrefabs;
+            GameObject prefab = prefabs[UnityEngine.Random.Range(0, prefabs.Length)];
             PoseDrivenEntity prefabPDE = prefab.GetComponent<PoseDrivenEntity>();
             pose = prefabPDE.ConvertCentroidPoseToRoot(pose);
             pose.position = StateManagerUtils.FollowGround(pose.position);
