@@ -7060,7 +7060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f63363b3499a6d64911f6e306cfcf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: 192.168.2.1
+  host: localhost
   port: 8080
   agentManager: {fileID: 1678070939}
 --- !u!1 &1728502837
