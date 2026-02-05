@@ -23,6 +23,7 @@ namespace CDT{
         private ConcurrentQueue<DittoMessage> msgQueue = new ConcurrentQueue<DittoMessage>();
         private List<TrackedObject> spawnRequests = new List<TrackedObject>();
         private Dictionary<string, TrackedObjectInternalState> trackedObjectStates = new Dictionary<string, TrackedObjectInternalState>();
+        private Dictionary<string, (TrackedObjectInternalState objstate,float lastSeen)> disabledObjectStates = new Dictionary<string, (TrackedObjectInternalState,float)>();
         private Dictionary<string, GameObject[]> prefabMap = new Dictionary<string, GameObject[]>();
 
         // Lifecycle Methods
@@ -71,6 +72,7 @@ namespace CDT{
             //     Debug.Log("Identified " + spawnRequests.Count + " new tracked objects in LateUpdate().");
             // }
             int spawnCount = 0;
+            List<string> objIDsToremove = new List<string>();
             
             foreach (var trackedObject in spawnRequests)
             {
@@ -90,7 +92,28 @@ namespace CDT{
             {
                 Debug.Log("Spawned " + spawnCount + " new tracked objects in LateUpdate().");
             }    
-            spawnRequests.Clear();                                      
+            spawnRequests.Clear();
+
+            foreach (var disabledObj in disabledObjectStates)
+            {
+                string disabbledObjectID = disabledObj.Key;
+                TrackedObjectInternalState disabledObjectstate = disabledObj.Value.objstate;
+                float timeSinceDisabled = Time.time - disabledObj.Value.lastSeen;
+                if (timeSinceDisabled > 30f) // If an object has been disabled for more than 30 seconds, remove it from the scene and from disabledObjectStates
+                {
+                    Debug.Log("Removing tracked object with ID: " + disabbledObjectID + " as it has been disabled for " + timeSinceDisabled + " seconds.");
+                    UnityEngine.Object.Destroy(disabledObjectstate.poseDrivenEntity.gameObject);
+                    objIDsToremove.Add(disabbledObjectID);
+                }
+            }
+            if (objIDsToremove.Count > 0)
+            {
+                foreach (string objID in objIDsToremove)
+                {
+                   disabledObjectStates.Remove(objID);
+                }
+                objIDsToremove.Clear();
+            }                                      
         }
 
         // Other Methods
@@ -204,7 +227,7 @@ namespace CDT{
                     }
                     else
                     {
-                        Debug.Log("No match found for tracked object " + objectID + "distnce from nearest.");
+                        // Debug.Log("No match found for tracked object " + objectID + "distnce from nearest.");
                         spawnRequests.Add(objToken);
                         newObjectsCount += 1;
                         continue;
@@ -226,6 +249,8 @@ namespace CDT{
             // Debug.Log("Number of tracked objects in message: " + objectsArray.Count);
             // int newObjectsCount = 0;
             // int objectIndex = 0;
+            List<string> objIDsToremove = new List<string>();
+            
 
             foreach (var objToken in trackedObjectStates)    // For each tracked object in trackedObjects
             {
@@ -246,13 +271,112 @@ namespace CDT{
                 }
                 if (!objectFoundInMessage)
                 {
-                    // remove tracked object
-                    RemoveTrackedObject(objectID);
+                    // Disable the tracked object
+                    objIDsToremove.Add(objectID);
                 }        
             }
+
+            if (objIDsToremove.Count > 0)
+            {
+                foreach (string objID in objIDsToremove)
+                {
+                    DisableTrackedObject(objID);
+                }
+                objIDsToremove.Clear();
+            }
+
             foreach (TrackedObject obj in msgObjects) // for every remaining object in msgObjects
             {
-                spawnRequests.Add(obj); // add to spawn requests
+                TrackedObjectInternalState matchedState = null;                
+                string matchedOldId = null;
+                float distanceFromCandidate = float.MaxValue;
+                string objectID = obj.parent + ":" + new Guid(obj.object_id).ToString("B");
+                string objClass = StateManagerUtils.GetObjectClass(obj.classification);
+                UnityPose incomingPose = new UnityPose();
+                UnityPose inCentPose = null;
+                // remaining objects in the message are either new objects or disabled objects with a new ID
+                
+                // Check if the incoming object matches any disabled objects based on proximity and obj class
+                if (!disabledObjectStates.ContainsKey(objectID))
+                {
+                    // Debug.Log("Object ID" + objectID + " not found in disabled objects list, checking for proximity matches in " + disabledObjectStates.Count + " disabled objects");
+                    foreach(var disabledObj in disabledObjectStates)
+                    {
+                        string disabledObjectID = disabledObj.Key;
+                        TrackedObjectInternalState disabledObjectState = disabledObj.Value.objstate;
+
+                        // Object class matching
+                        if (disabledObjectState.objClass != objClass)
+                        {
+                            // Debug.Log("Skipping disabled object " + disabledObjectID + " due to class mismatch. Incoming: " + objClass + ", Disabled: " + disabledObjectState.objClass);
+                            continue;
+                        }
+                        // Proximity check
+                        if (inCentPose == null)  // If not already calculated
+                        {
+                            // Debug.Log("Calculating incoming centroid pose for proximity check.");
+                            Pose incomingRosPose = obj.kinematics.pose_with_covariance.pose;
+                            incomingPose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                                incomingRosPose.position.x,
+                                incomingRosPose.position.y,
+                                incomingRosPose.position.z
+                            ));
+                            incomingPose.orientation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                                incomingRosPose.orientation.x,
+                                incomingRosPose.orientation.y,
+                                incomingRosPose.orientation.z,
+                                incomingRosPose.orientation.w
+                            ));
+                            incomingPose.position = mapOrigin.TransformPoint(incomingPose.position);
+                            incomingPose = disabledObjectState.poseDrivenEntity.ConvertCentroidPoseToRoot(incomingPose);
+                            incomingPose.position = StateManagerUtils.FollowGround(incomingPose.position);
+                            inCentPose = disabledObjectState.poseDrivenEntity.ConvertRootPoseToCentroid(incomingPose);
+                        }
+                                               
+                        // Debug.Log("checking proximity against disabled object " + disabledObjectID);
+                        UnityPose canCentPose = new UnityPose();
+                        canCentPose = disabledObjectState.poseDrivenEntity.ConvertRootPoseToCentroid(disabledObjectState.pose);
+                        // Debug.Log("Incoming centroid pose: " + inCentPose.position + ", Candidate centroid pose: " + canCentPose.position);
+                        distanceFromCandidate = Vector3.Distance(inCentPose.position, canCentPose.position);
+                        Bounds candidateBounds = disabledObjectState.poseDrivenEntity.GetLocalBounds();
+                        float distanceTolerance = Mathf.Max(candidateBounds.extents.x, candidateBounds.extents.z) * 0.8f;
+                        // Debug.Log("Distance from candidate disabled object " + disabledObjectID + " is " + distanceFromCandidate + " with tolerance " + distanceTolerance);
+                        if (distanceFromCandidate <= distanceTolerance)  // Match found in disabledObjectStates
+                        {
+                            matchedState = disabledObjectState;
+                            matchedOldId = disabledObjectID;
+                            Debug.Log("Matched new tracked object " + objectID + " to existing object " + matchedOldId + " based on proximity.");
+                            break;
+                        }
+                    }
+                    if (matchedState != null)  // If match was found,
+                    {
+                        // Update ID in matched object and Enable it
+                        // Debug.Log("Matched state is not null, reassigning ID.");
+                        EnableTrackedObject(matchedOldId);
+                        matchedState.poseDrivenEntity.gameObject.name = objectID; // Update GameObject name
+                        matchedState.objectID = objectID;
+                        matchedState.pose = incomingPose;
+                        trackedObjectStates.Remove(matchedOldId);
+                        trackedObjectStates.Add(objectID, matchedState);
+                        matchedState = null;
+                        matchedOldId = null;
+                        // Debug.Log("Reassigned matched object from old ID: " + matchedOldId + " to new ID: " + objectID);
+                    }
+                    else
+                    {
+                        Debug.Log("No match found for tracked object " + objectID + ", spawning new object.");
+                        spawnRequests.Add(obj);
+                        continue;
+                    }
+                }
+                else
+                {
+                    Debug.Log("Object ID found in disabled objects, enabling: " + objectID);
+                    EnableTrackedObject(objectID);
+                    continue;
+                }
+                
             }    
         }
         
@@ -359,6 +483,24 @@ namespace CDT{
 
             // Debug.Log("Modifying tracked object state for object ID: " + objectID);
             // Update the relevant tracked object state variables here
+        }
+
+        public void DisableTrackedObject(string objectID)
+        {
+            TrackedObjectInternalState targetObject = trackedObjectStates[objectID];
+            trackedObjectStates.Remove(objectID);
+            targetObject.poseDrivenEntity.gameObject.SetActive(false);
+            disabledObjectStates.Add(objectID, (targetObject, Time.time));
+            Debug.Log("Disabled tracked object with ID: " + objectID);
+        }
+
+        public void EnableTrackedObject(string objectID)
+        {
+            TrackedObjectInternalState targetObject = disabledObjectStates[objectID].objstate;
+            disabledObjectStates.Remove(objectID);
+            targetObject.poseDrivenEntity.gameObject.SetActive(true);
+            trackedObjectStates.Add(objectID,targetObject);
+            Debug.Log("Enabled tracked object with ID: " + objectID);
         }
 
         public void RemoveTrackedObject(string objectID)
