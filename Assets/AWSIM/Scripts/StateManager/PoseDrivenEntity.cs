@@ -34,6 +34,7 @@ namespace CDT
         protected float rotationVelocity = 0f; // Used for SmoothDamp on yaw
         // protected float rayCastOriginOffset = 1f;
         // protected float rayCastMaxDistance = 100f;
+        protected SensorKit sensorKit;
         protected TrackedObjectManager trackedObjectManager;
 
         // Start is called before the first frame update
@@ -43,6 +44,7 @@ namespace CDT
             targetPosition = transform.position;
             // targetPosition = FollowGround(transform.position);
             targetRotation = transform.rotation;
+            // sensorKit = new SensorKit(this);
         }
 
         // Update is called once per frame
@@ -104,6 +106,12 @@ namespace CDT
             targetRotation = pose.orientation;
             timeToDeath = 5f; // Reset time to death on pose update
         }
+        public SensorKit GetSensorKit()
+        {
+            return sensorKit;
+        }
+
+        public abstract void ConfigureSensors(Dictionary<string, SensorTransform[]> sensorTransforms, string topicPrefix);
         // protected Vector3 FollowGround(Vector3 position)
         // {
         //     var origin = position + Vector3.up * rayCastOriginOffset;

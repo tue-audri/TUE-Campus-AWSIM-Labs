@@ -71,6 +71,7 @@ namespace CDT
             }
         }
 
+
         [Tooltip("Vehicle wheel radius in meters")]
         public float wheelRadius = 0.35f;
 
@@ -99,6 +100,7 @@ namespace CDT
         protected override void Start()
         {
             base.Start();
+            // sensorKit = new SensorKit(this);
             previousPosition = transform.position;
             previousYaw = transform.eulerAngles.y;
             wheelBase = GetWheelBase();
@@ -255,6 +257,69 @@ namespace CDT
                 this.turnSignalState = turnSignalState;
         }
 
+        // public void ConfigureSensors(Dictionary<string, SensorTransform[]> sensorTransforms)
+        // {
+        //     sensorKit.SetSensorTransforms(sensorTransforms);
+        // }
+
+        public override void ConfigureSensors(Dictionary<string, SensorTransform[]> sensorTransforms, string topicPrefix)
+        {
+            sensorKit = new SensorKit(this); // Re-initialize SensorKit with the current vehicle context
+            foreach (var kv in sensorTransforms)
+            {
+                string type = kv.Key;
+                var sensors = kv.Value;
+
+                // Debug.Log($"[SensorDict] {type} → {sensors?.Length ?? 0} sensors");
+
+                if (sensors == null) continue;
+
+                if (type == "sensor_kit")
+                {
+                    // Implement logic to position sensor_kit_base link wrt base_link
+                    sensorKit.CalibrateSensorKit(sensors[0]);
+                }
+                else
+                {
+                    for (int i = 0; i < sensors.Length; i++)
+                    {
+                        var s = sensors[i];
+                        string sensorID = topicPrefix + "/" + s.name;
+                        Pose sensorRosPose = new Pose
+                        {
+                            position = s.transform.translation,
+                            orientation = s.transform.rotation
+                        };
+
+                        SensorInitConfig config = new SensorInitConfig
+                        {
+                            LocalPosition = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
+                                sensorRosPose.position.x, 
+                                sensorRosPose.position.y, 
+                                sensorRosPose.position.z
+                            )),
+                            LocalRotation = StateManagerUtils.ConvertRos2UnityRotation(new Quaternion(
+                                sensorRosPose.orientation.x, 
+                                sensorRosPose.orientation.y, 
+                                sensorRosPose.orientation.z, 
+                                sensorRosPose.orientation.w
+                            )),
+                            RawConfig = null
+                        };
+
+                        sensorKit.AddSensor(sensorID, type, config);
+
+                        // Debug.Log($"[SensorParse] Processing sensor '{sensorID}'");
+
+                        // Debug.Log(
+                        //     $"  [{type} #{i}] name={s.name} parent={s.parent} child={s.child} " +
+                        //     $"T=({s.sensorPose.position.x},{s.sensorPose.position.y},{s.sensorPose.position.z}) " +
+                        //     $"R=({s.sensorPose.orientation.x},{s.sensorPose.orientation.y},{s.sensorPose.orientation.z},{s.sensorPose.orientation.w})"
+                        // );
+                    }
+                }                
+            }
+        }
         public void ConfigureSensors(string topicPrefix)
         {
             // List<RglLidarPublisher> lidars = new List<RglLidarPublisher>();

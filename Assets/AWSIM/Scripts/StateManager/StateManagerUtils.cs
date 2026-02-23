@@ -55,6 +55,33 @@ namespace CDT
                 eulerDeg.z * Mathf.Deg2Rad
             );
         }
+
+        public static Dictionary<string, SensorTransform[]> GetSensorKitFromMessage(JToken sensorsToken)
+        {
+            Dictionary<string, SensorTransform[]> sensorKit = new Dictionary<string, SensorTransform[]>();
+            if (sensorsToken == null || sensorsToken.Type != JTokenType.Object)
+                throw new System.Exception("SensorKit is null or incompatible type");
+
+            var obj = (JObject)sensorsToken;
+            Debug.Log("[SensorParse]Recieved sensorkit: " + sensorsToken.ToString()); 
+
+            foreach (var property in obj.Properties())
+            {
+                if (property.Value is JArray transformArray)
+                {
+                    SensorTransform[] transforms = property.Value.ToObject<SensorTransform[]>();
+                    sensorKit[property.Name] = transforms;
+                    // sensorKit[property.Name][0].PrintSensorTransform();
+                    // Debug.Log($"[SensorParse] Category '{property.Name}' → {transforms.Length} entries");
+                }
+                else
+                {
+                    throw new System.Exception($"[SensorParse] '{property.Name}' is not an array — skipped.");
+                }
+            }
+                       
+            return sensorKit;
+        }
         public static Pose GetPoseFromMessage(JToken poseToken)
         {
             Pose pose = new Pose();

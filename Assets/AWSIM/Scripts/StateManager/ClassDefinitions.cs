@@ -96,10 +96,37 @@ namespace CDT
     }
 
     [Serializable]
+    public class SensorTransform
+    {
+        public string name;
+        public TransformData transform;
+        public void PrintSensorTransform()
+        {
+            Debug.Log($"Sensor Name: {name}, Parent: {transform.parent}, Child: {transform.child}");
+            Debug.Log($"Sensor Pose - Position: ({transform.translation.x}, {transform.translation.y}, {transform.translation.z}), " +
+                      $"Orientation: ({transform.rotation.x}, {transform.rotation.y}, {transform.rotation.z}, {transform.rotation.w})");
+        }
+    }
+
+    [Serializable]
+    public class TransformData
+    {
+        public string parent;
+        public string child;
+        public Position translation;
+        public Orientation rotation;
+    }
+
+    [Serializable]
     public class Pose
     {
         public Position position;
         public Orientation orientation;
+        public void PrintPose()
+        {
+            Debug.Log($"Position: ({position.x}, {position.y}, {position.z}), " +
+                      $"Orientation: ({orientation.x}, {orientation.y}, {orientation.z}, {orientation.w})");
+        }
     }
 
     [Serializable]

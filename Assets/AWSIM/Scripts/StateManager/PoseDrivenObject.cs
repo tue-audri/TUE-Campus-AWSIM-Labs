@@ -27,6 +27,12 @@ namespace CDT
         {
             // Later: brake lights, indicators, etc.
         }
+
+        public override void ConfigureSensors(Dictionary<string, SensorTransform[]> sensorTransforms, string topicPrefix)
+        {
+            // Vehicles might have different sensor configurations, but for now we can just set the transforms
+            // sensorKit.SetSensorTransforms(sensorTransforms);
+        }
     }
 
 }

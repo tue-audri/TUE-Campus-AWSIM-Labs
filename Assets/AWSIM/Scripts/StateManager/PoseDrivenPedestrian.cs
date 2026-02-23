@@ -93,5 +93,11 @@ namespace CDT
             }
         }
 
+        public override void ConfigureSensors(Dictionary<string, SensorTransform[]> sensorTransforms, string topicPrefix)
+        {
+            // Pedestrians might have different sensor configurations, but for now we can just set the transforms
+            // sensorKit.SetSensorTransforms(sensorTransforms);
+        }
+
     }
 }

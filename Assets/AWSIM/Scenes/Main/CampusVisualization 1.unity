@@ -1474,8 +1474,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1743169424}
   m_HandleRect: {fileID: 1743169422}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 1.0000004
+  m_Size: 0.80229884
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7046,8 +7046,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa1a117fef5b94575800354783e46f55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vehiclePrefab: {fileID: 4883906869589418955, guid: 9eec0c6258be20b849c6445a5ad0f558, type: 3}
+  vehiclePrefab: {fileID: 7620928129349006992, guid: e11a8f0a8eb0cfe4d9ab81a74b1f8dce, type: 3}
   mapOrigin: {fileID: 870266703}
+  lidarPrefabs:
+  - {fileID: 2440576987535774365, guid: 513cb9bb0a11c8cff9c5c676ccf02c57, type: 3}
+  cameraPrefabs:
+  - {fileID: 8933482461076931068, guid: bfcb65c8e708d8bf4bb480fafd84a845, type: 3}
+  gnssPrefabs:
+  - {fileID: 4969700091465076122, guid: 59e7e9ade816f8c4ebcf27bed302dcbe, type: 3}
+  imuPrefabs:
+  - {fileID: 3387187664798269632, guid: 7b7ea1674328b854b98bd5008b84bb44, type: 3}
 --- !u!114 &1678070940
 MonoBehaviour:
   m_ObjectHideFlags: 0

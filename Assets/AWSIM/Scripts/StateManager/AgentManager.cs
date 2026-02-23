@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using AWSIM;
+using System;
 namespace CDT
 {
     public class AgentManager : MonoBehaviour
@@ -15,6 +16,12 @@ namespace CDT
         [SerializeField] private GameObject vehiclePrefab; // Assign agent vehicle prefab in Inspector   
         [SerializeField] private Transform mapOrigin;
 
+        [Header("Sensor Kit Setup")]
+        [SerializeField] private GameObject[] lidarPrefabs; // Assign different LiDAR sensor prefabs in Inspector
+        [SerializeField] private GameObject[] cameraPrefabs; // Assign different Camera sensor prefabs in Inspector
+        [SerializeField] private GameObject[] gnssPrefabs; // Assign different GNSS sensor prefabs in Inspector
+        [SerializeField] private GameObject[] imuPrefabs; // Assign different IMU sensor prefabs in Inspector
+
         private ConcurrentQueue<DittoMessage> eventQueue; 
         private ConcurrentQueue<DittoMessage> liveMessageQueue;
         private List<DittoMessage> spawnRequests;
@@ -22,6 +29,33 @@ namespace CDT
 
 
         // Lifecycle Methods
+        void Awake()
+        {
+            try
+            {
+                foreach (var prefab in lidarPrefabs)
+                {
+                    SensorRegistry.RegisterSensor("lidars", prefab, go => new LidarAdapter(go));
+                }
+                foreach (var prefab in cameraPrefabs)
+                {
+                    SensorRegistry.RegisterSensor("cameras", prefab, go => new CameraAdapter(go));
+                }
+                foreach (var prefab in gnssPrefabs)
+                {
+                    SensorRegistry.RegisterSensor("gnss", prefab, go => new GnssAdapter(go));
+                }
+                foreach (var prefab in imuPrefabs)
+                {
+                    SensorRegistry.RegisterSensor("imu", prefab, go => new ImuAdapter(go));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error during sensor registration: " + e.Message);
+            }
+            
+        }
         void Start()
         {
             eventQueue = new ConcurrentQueue<DittoMessage>();
@@ -107,7 +141,7 @@ namespace CDT
             }
         }      
 
-        // Other Methods
+        // Other Methods[CameraAdapter]
         // ----- Event handler -----
         public void HandleEvent(DittoMessage msg)
         {
@@ -147,9 +181,13 @@ namespace CDT
         public void SpawnAgent(DittoMessage msg)
         {
             AgentInternalState newAgent = new AgentInternalState();
+            Dictionary<string, SensorTransform[]> agentSensorKit = new Dictionary<string, SensorTransform[]>();
             ThingWrapper thing = JsonConvert.DeserializeObject<ThingWrapper>(msg.value.ToString());
             Pose rosPose = StateManagerUtils.GetPoseFromMessage(thing.features?["status"]?["properties"]?["kinematics"]?["pose"]);
             string[] idParts = thing.thingID.Split('-');
+            agentSensorKit = StateManagerUtils.GetSensorKitFromMessage(thing.attributes?["sensors"]);
+            
+            
             UnityPose pose = new UnityPose();
             pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(
                 rosPose.position.x, 
@@ -166,17 +204,18 @@ namespace CDT
             pose.position = StateManagerUtils.FollowGround(pose.position);
             // Debug.Log("Extracted Pose - Position: " + pose.position + ", Orientation: " + pose.orientation);
             
-            var obj = Object.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world                                                    
-            var agent = obj.GetComponent<PoseDrivenVehicle>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject
-            agent.ConfigureSensors(idParts[2]);                                                    // Initialize the C# data within that retrieved script instance
+            var obj = GameObject.Instantiate(vehiclePrefab, pose.position, pose.orientation);           // Instantiate the visual GameObject in the world                                                    
+            var agent = obj.GetComponent<PoseDrivenVehicle>();                                      // CRITICAL STEP: Get the specific script instance attached to the new GameObject                                                    
             obj.name = thing.thingID;                                                               // Rename the new object in the Hierarchy window for clarity
             obj.transform.parent = this.transform;                                                  // Organize the object in the Unity Hierarchy under a parent object                                                                
+            // agent.ConfigureSensors(agentSensorKit, idParts[2]);                                     // Configure sensors based on the SensorKit data received from Ditto
             newAgent.poseDrivenVehicle = agent;                                                     // Set the npcVehicle reference in the AgentInternalState
             newAgent.trackedObjectManager = obj.GetComponent<TrackedObjectManager>();               // Set the trackedObjectManager reference in the AgentInternalState
             newAgent.trackedObjectManager.mapOrigin = this.mapOrigin;                               // Set the mapOrigin reference in the TrackedObjectManager
             newAgent.agentID = thing.thingID;                                                       // Set the agentID in the AgentInternalState
             newAgent.pose = pose;                                                                   // Set the pose in the AgentInternalState
             agentStates.Add(thing.thingID, newAgent);                                               // Add the new agent to the agentStates list
+            agent.ConfigureSensors(agentSensorKit, idParts[2]);
             Debug.Log("Entry added to agentStates for AgentID: " + thing.thingID);
         }
 
