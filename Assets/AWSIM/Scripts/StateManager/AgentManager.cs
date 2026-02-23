@@ -185,8 +185,8 @@ namespace CDT
             ThingWrapper thing = JsonConvert.DeserializeObject<ThingWrapper>(msg.value.ToString());
             Pose rosPose = StateManagerUtils.GetPoseFromMessage(thing.features?["status"]?["properties"]?["kinematics"]?["pose"]);
             string[] idParts = thing.thingID.Split('-');
-            agentSensorKit = StateManagerUtils.GetSensorKitFromMessage(thing.attributes?["sensors"]);
-            
+            agentSensorKit = StateManagerUtils.GetSensorKitFromMessage(thing.attributes?["agent_transforms"]);
+        
             
             UnityPose pose = new UnityPose();
             pose.position = StateManagerUtils.ConvertRos2UnityPosition(new Vector3(

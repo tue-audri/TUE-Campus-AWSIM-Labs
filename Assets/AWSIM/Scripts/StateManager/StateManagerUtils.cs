@@ -60,7 +60,10 @@ namespace CDT
         {
             Dictionary<string, SensorTransform[]> sensorKit = new Dictionary<string, SensorTransform[]>();
             if (sensorsToken == null || sensorsToken.Type != JTokenType.Object)
-                throw new System.Exception("SensorKit is null or incompatible type");
+            {
+                Debug.LogWarning("No valid sensor_kit attribute found in message");
+                return sensorKit; // return empty kit
+            }
 
             var obj = (JObject)sensorsToken;
             Debug.Log("[SensorParse]Recieved sensorkit: " + sensorsToken.ToString()); 
